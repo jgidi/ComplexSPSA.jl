@@ -10,7 +10,6 @@ Documenter.makedocs(
     clean = true,
     doctest = true,
     modules = Module[ComplexSPSA],
-    repo = "github.com/jgidi/ComplexSPSA.jl.git",
     highlightsig = true,
     sitename = "ComplexSPSA.jl",
     expandfirst = [],
@@ -21,5 +20,7 @@ Documenter.makedocs(
 
 Documenter.deploydocs(
     ;
-    repo="github.com/jgidi/ComplexSPSA.jl",
+    repo = "github.com/jgidi/ComplexSPSA.jl",
+    branch = "doc-pages",
+    push_preview = true,
 )
