@@ -1,6 +1,8 @@
 module ComplexSPSA
 
 export Qiskit
+# Tools
+export squeeze, apply_along_dim, simulate_experiment
 
 import LinearAlgebra
 import Statistics
