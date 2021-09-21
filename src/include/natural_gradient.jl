@@ -210,7 +210,7 @@ function CSPSA_NG_scalar(f::Function, metric::Function, z₀::Vector, Niters = 2
             @. zm = z - Δ1 + Δ2
 
             dFp = metric(z, zp) - metric(z, zm)
-            H = 0.25abs(dFp - dF) / (2bk^2)     # Estimate Hessian
+            H = abs(dFp - dF) / (2bk^2) # Estimate Hessian # NOTE Erased the factor 1/4
 
             # Hessian conditioning
             # TODO In Qiskit they save the smoothed version and then regularize
