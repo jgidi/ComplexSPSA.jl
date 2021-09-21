@@ -1,8 +1,8 @@
-function SPSA_complex(f::Function, z₀::Vector, Niters = 200;
-                      sign = -1,
-                      s = 1, t = 1/6, A = 1, a = 3, b = 0.1,
-                      metric = nothing, # Dummy
-                      )
+function SPSA_on_complex(f::Function, z₀::Vector, Niters = 200;
+                         sign = -1,
+                         s = 1, t = 1/6, A = 1, a = 3, b = 0.1,
+                         metric = nothing, # Dummy
+                         )
 
     z = z₀[:]
     zr = reinterpret(Float64, z)        # View of z as pairs of reals

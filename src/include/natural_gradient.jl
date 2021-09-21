@@ -1,16 +1,16 @@
-function SPSA_NG(f::Function, z₀::Vector, Niters = 200;
-                 metric::Function,
-                 sign = -1,
-                 hessian_delay = 0,
-                 s = 1, t = 1/6, A = 1, b = 0.1,
-                 )
+function SPSA_NG_on_complex(f::Function, z₀::Vector, Niters = 200;
+                            metric::Function,
+                            sign = -1,
+                            hessian_delay = 0,
+                            s = 1, t = 1/6, A = 1, b = 0.1,
+                            )
 
     z = copy(z₀)
     zr = reinterpret(Float64, z)        # View of z as pairs of reals
     Nz = length(z)
 
     # Set of possible perturbations
-    samples = Complex{Float64}.((-1, 1))
+    samples = Float64.((-1, 1))
 
     # Preallocate some quantities and views
     g  = similar(z)

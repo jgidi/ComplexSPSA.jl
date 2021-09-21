@@ -1,9 +1,9 @@
-function SPSA2_complex(f::Function, z₀::Vector, Niters = 200;
-                       sign = -1,
-                       hessian_delay = 0,
-                       s = 1, t = 1/6, A = 1, b = 0.1,
-                       metric = nothing,
-                       )
+function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
+                          sign = -1,
+                          hessian_delay = 0,
+                          s = 1, t = 1/6, A = 1, b = 0.1,
+                          metric = nothing,
+                          )
 
     z = copy(z₀)
     zr = reinterpret(Float64, z)        # View of z as pairs of reals

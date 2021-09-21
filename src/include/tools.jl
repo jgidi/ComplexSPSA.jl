@@ -1,8 +1,45 @@
+"""
+    squeeze(A :: AbstractArray)
+
+Remove the singleton (length-1) dimensions of a multidimensional array.
+
+Example
+===
+
+```julia-repl
+julia> a = rand(10, 3, 1, 4);
+
+julia> size(a)
+(10, 3, 1, 4)
+
+julia> size( squeeze(a) )
+(10, 3, 4)
+```
+"""
 function squeeze(A :: AbstractArray)
     keepdims = Tuple(i for i in size(A) if i != 1)
     return reshape(A, keepdims)
 end
 
+"""
+    apply_along_dim(f::Function, A::AbstractArray; dim::Integer = 1)
+
+Apply a function, `f`, over slices along a dimension, `dim`, of a multidimensional
+array, `A`.
+
+Example
+===
+```julia-repl
+julia> a = [ 1 2; 3 4 ]
+2×2 Matrix{Int64}:
+ 1  2
+ 3  4
+
+julia> apply_along_dim(sum, a, dim = 1)
+1×2 Matrix{Int64}:
+ 4  6
+```
+"""
 function apply_along_dim(f::Function, A::AbstractArray; dim::Integer = 1)
 
     axs = axes(A)
@@ -20,9 +57,26 @@ function apply_along_dim(f::Function, A::AbstractArray; dim::Integer = 1)
     # Return array with modified length along 'dim'
     return reshape(R, size(prev_ind)..., :, size(post_ind)...)
 end
+# # This version drops the singleton dimension automatically
+# function apply_along_dim(f::Function, A::AbstractArray; dim::Integer = 1)
+#    return [f(slice) for slice in eachslice(A, dims = dim)]
+# end
 
-function simulate_experiment(refvalue, Nmeasures)
-    if Nmeasures < 0
+"""
+    simulate_experiment(refvalue, Nmeasures = Inf)
+
+Simulates the experimental measurement with `Nmeasures` number of tries of
+an observable whose theoretical value is `refvalue`.
+
+The experiental result is simulated by sampling a [binomial distribution](https://en.wikipedia.org/wiki/Binomial_distribution)
+with `Nmeasures` tries and success rate `refvalue`, and normalizing the result against the number of tries.
+
+Notes
+=====
+* If the number of measurements, `Nmeasures`, is infinite, the reference value, `refvalue`, is returned exactly.
+"""
+function simulate_experiment(refvalue, Nmeasures = Inf)
+    if isinf(Nmeasures)
         sample = refvalue
     else
         distrib = Binomial(Nmeasures, refvalue)
