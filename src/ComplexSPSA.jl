@@ -15,6 +15,7 @@ import LinearAlgebra
 import Statistics
 import Distributions: Binomial
 
+include("include/gains.jl")
 include("include/first_order.jl")
 include("include/second_order.jl")
 include("include/natural_gradient.jl")

@@ -1,8 +1,8 @@
-function SPSA_NG_on_complex(f::Function, z₀::Vector, Niters = 200;
-                            metric::Function,
+function SPSA_NG_on_complex(f::Function, metric::Function, z₀::Vector, Niters = 200;
                             sign = -1,
                             hessian_delay = 0,
-                            s = 1, t = 1/6, A = 1, b = 0.1,
+                            b = gains[:b],
+                            A = gains[:A], s = gains[:s], t = gains[:t],
                             )
 
     z = copy(z₀)
@@ -82,11 +82,11 @@ function SPSA_NG_on_complex(f::Function, z₀::Vector, Niters = 200;
     return zacc
 end
 
-function CSPSA_NG(f::Function, z₀::Vector, Niters = 200;
-                  metric::Function,
+function CSPSA_NG(f::Function, metric::Function, z₀::Vector, Niters = 200;
                   sign = -1,
                   hessian_delay = 0,
-                  s = 1, t = 1/6, A = 1, b = 0.1,
+                  b = gains[:b],
+                  A = gains[:A], s = gains[:s], t = gains[:t],
                   )
 
     z = copy(z₀)
@@ -162,11 +162,11 @@ function CSPSA_NG(f::Function, z₀::Vector, Niters = 200;
     return zacc
 end
 
-function CSPSA_NG_scalar(f::Function, z₀::Vector, Niters = 200;
-                         metric::Function,
+function CSPSA_NG_scalar(f::Function, metric::Function, z₀::Vector, Niters = 200;
                          sign = -1,
                          hessian_delay = 0,
-                         s = 1, t = 1/6, A = 1, b = 0.1,
+                         b = gains[:b],
+                         A = gains[:A], s = gains[:s], t = gains[:t],
                          )
 
     z = copy(z₀)
