@@ -57,7 +57,7 @@ function apply_along_dim(f::Function, A::AbstractArray; dim::Integer = 1)
     # Return array with modified length along 'dim'
     return reshape(R, size(prev_ind)..., :, size(post_ind)...)
 end
-# # This version drops the singleton dimension automaticly
+# # This version drops the singleton dimension automatically
 # function apply_along_dim(f::Function, A::AbstractArray; dim::Integer = 1)
 #    return [f(slice) for slice in eachslice(A, dims = dim)]
 # end
@@ -68,7 +68,7 @@ end
 Simulates the experimental measurement with `Nmeasures` number of tries of
 an observable whose theoretical value is `refvalue`.
 
-The experiental result is obtained by sampling a [binomial distribution](https://en.wikipedia.org/wiki/Binomial_distribution)
+The experiental result is simulated by sampling a [binomial distribution](https://en.wikipedia.org/wiki/Binomial_distribution)
 with `Nmeasures` tries and success rate `refvalue`, and normalizing the result against the number of tries.
 
 Notes
