@@ -43,7 +43,7 @@ Wrapper around [`SPSA_NG`](@ref) which internally converts the
 complex-valued initial point, `guess`, the `fidelity`, and the objective function, `f`,
 to be optimized as a real-variable problem with twice the parameters.
 """
-function SPSA_NG_on_complex(f, guess::Vector{Complex{Float64}}, Niters)
+function SPSA_NG_on_complex(f, fidelity, guess::Vector{Complex{Float64}}, Niters)
     # Prepare real-variable versions of the function f,
     # the fidelity, and the initial value
     f_real(x)  = f(reinterpret(Complex{Float64}, x))
@@ -52,7 +52,7 @@ function SPSA_NG_on_complex(f, guess::Vector{Complex{Float64}}, Niters)
                               reinterpret(Complex{Float64}, y))
 
     # Solve using real optimizer
-    xacc = SPSA2(f_real, fid_real, guess_real, Niters)
+    xacc = SPSA_NG(f_real, fid_real, guess_real, Niters)
 
     # Return optimized variables as complex
     return reinterpret(Complex{Float64}, xacc)

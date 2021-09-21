@@ -1,8 +1,8 @@
 function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
                           sign = -1,
                           hessian_delay = 0,
-                          s = 1, t = 1/6, A = 1, b = 0.1,
-                          metric = nothing,
+                          b = gains[:b],
+                          A = gains[:A], s = gains[:s], t = gains[:t],
                           )
 
     z = copy(z₀)
@@ -83,8 +83,8 @@ end
 function CSPSA2(f::Function, z₀::Vector, Niters = 200;
                 sign = -1,
                 hessian_delay = 0,
-                s = 1, t = 1/6, A = 1, b = 0.1,
-                metric = nothing,
+                b = gains[:b],
+                A = gains[:A], s = gains[:s], t = gains[:t],
                 )
 
     z = copy(z₀)

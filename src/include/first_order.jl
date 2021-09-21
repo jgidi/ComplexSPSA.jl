@@ -1,7 +1,8 @@
 function SPSA_on_complex(f::Function, z₀::Vector, Niters = 200;
                          sign = -1,
-                         s = 1, t = 1/6, A = 1, a = 3, b = 0.1,
-                         metric = nothing, # Dummy
+                         Ncalibrate = 0,
+                         a = gains[:a], b = gains[:b],
+                         A = gains[:A], s = gains[:s], t = gains[:t],
                          )
 
     z = z₀[:]
@@ -11,6 +12,12 @@ function SPSA_on_complex(f::Function, z₀::Vector, Niters = 200;
 
     # Set of possible perturbations
     samples = Float64.((-1, 1))
+
+    # Calibrate gain a
+    if Ncalibrate > 0
+        ac = calibrate_gain_a(f, z, a, b, samples, Ncalibrate)
+        ac > 1e-10 ? (a = ac) : nothing
+    end
 
     # Preallocate quantities
     zp = similar(z)                            # z+
@@ -46,8 +53,9 @@ end
 
 function CSPSA(f::Function, z₀::Vector, Niters = 200;
                sign = -1,
-               s= 1, t = 1/6, A = 1, a = 3, b = 0.1,
-               metric = nothing, # Dummy
+               Ncalibrate = 0,
+               a = gains[:a], b = gains[:b],
+               A = gains[:A], s = gains[:s], t = gains[:t],
                )
 
     z = z₀[:]
@@ -55,6 +63,12 @@ function CSPSA(f::Function, z₀::Vector, Niters = 200;
 
     # Set of possible perturbations
     samples = Complex{Float64}.((-1, 1, -im, im))
+
+    # Calibrate gain a
+    if Ncalibrate > 0
+        ac = calibrate_gain_a(f, z, a, b, samples, Ncalibrate)
+        ac > 1e-10 ? (a = ac) : nothing
+    end
 
     # Accumulator
     zacc = Array{Complex{Float64}}(undef, Nvars, Niters)

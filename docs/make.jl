@@ -15,11 +15,11 @@ Documenter.makedocs(
     expandfirst = [],
     pages = [
         "Home" => "index.md",
-        "Minor tools" => "tools.md",
         "Qiskit Wrapper" => [
             "Introduction" => "qiskit/intro.md",
             "Optimizers"   => "qiskit/optimizers.md",
         ],
+        "Other tools" => "tools.md",
     ],
 )
 
