@@ -1,5 +1,7 @@
 """
-    SPSA_on_complex(f, guess::Vector{Complex{Float64}}, Niters)
+    SPSA_on_complex(f, guess::Vector{Complex{Float64}}, Niters;
+                    a = Qiskit.gains[:a], b = Qiskit.gains[:b],
+                    A = Qiskit.gains[:A], s = Qiskit.gains[:s], t = Qiskit.gains[:t] )
 
 Wrapper around [`SPSA`](@ref) which internally converts the
 complex-valued initial point, `guess`, and objective function, `f`,
@@ -23,7 +25,9 @@ function SPSA_on_complex(f, guess::Vector{Complex{Float64}}, Niters;
 end
 
 """
-    SPSA2_on_complex(f, guess::Vector{Complex{Float64}}, Niters)
+    SPSA2_on_complex(f, guess::Vector{Complex{Float64}}, Niters;
+                     b = Qiskit.gains[:b], A = Qiskit.gains[:A],
+                     s = Qiskit.gains[:s], t = Qiskit.gains[:t] )
 
 Wrapper around [`SPSA2`](@ref) which internally converts the
 complex-valued initial point, `guess`, and objective function, `f`,
@@ -47,7 +51,9 @@ function SPSA2_on_complex(f, guess::Vector{Complex{Float64}}, Niters;
 end
 
 """
-    SPSA_NG_on_complex(f, fidelity, guess::Vector{Complex{Float64}}, Niters)
+    SPSA_NG_on_complex(f, fidelity, guess::Vector{Complex{Float64}}, Niters;
+                       b = Qiskit.gains[:b], A = Qiskit.gains[:A],
+                       s = Qiskit.gains[:s], t = Qiskit.gains[:t] )
 
 Wrapper around [`SPSA_NG`](@ref) which internally converts the
 complex-valued initial point, `guess`, the `fidelity`, and the objective function, `f`,

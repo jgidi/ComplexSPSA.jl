@@ -1,5 +1,7 @@
 """
-    SPSA(f, guess, Niters)
+    SPSA(f, guess, Niters;
+         a = Qiskit.gains[:a], b = Qiskit.gains[:b],
+         A = Qiskit.gains[:A], s = Qiskit.gains[:s], t = Qiskit.gains[:t] )
 
 Wrapper around the first order [SPSA optimizer from Qiskit](https://qiskit.org/documentation/stubs/qiskit.algorithms.optimizers.QNSPSA.html#qiskit.algorithms.optimizers.SPSA).
 """
@@ -34,7 +36,9 @@ function SPSA(f, guess, Niters;
 end
 
 """
-    SPSA2(f, guess, Niters)
+    SPSA2(f, guess, Niters;
+          b = Qiskit.gains[:b], A = Qiskit.gains[:A],
+          s = Qiskit.gains[:s], t = Qiskit.gains[:t] )
 
 Wrapper around the second order [SPSA optimizer from Qiskit](https://qiskit.org/documentation/stubs/qiskit.algorithms.optimizers.QNSPSA.html#qiskit.algorithms.optimizers.SPSA).
 """
@@ -70,7 +74,9 @@ function SPSA2(f, guess, Niters;
 end
 
 """
-    SPSA_NG(f, fidelity, guess, Niters)
+    SPSA_NG(f, fidelity, guess, Niters;
+            b = Qiskit.gains[:b], A = Qiskit.gains[:A],
+            s = Qiskit.gains[:s], t = Qiskit.gains[:t] )
 
 Wrapper around the [QNSPSA optimizer from Qiskit](https://qiskit.org/documentation/stubs/qiskit.algorithms.optimizers.QNSPSA.html#qiskit.algorithms.optimizers.QNSPSA).
 """
