@@ -15,6 +15,7 @@ Documenter.makedocs(
     expandfirst = [],
     pages = [
         "Introduction" => "index.md",
+        "Optimizers" => "optimizers.md",
         "Examples" => "examples.md",
         "Qiskit Wrapper" => [
             "Introduction" => "qiskit/intro.md",
