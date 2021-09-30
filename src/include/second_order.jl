@@ -1,7 +1,33 @@
+"""
+    SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
+                     sign = -1,
+                     hessian_delay = 0,
+                     a = gains[:a], b = gains[:b],
+                     A = gains[:A], s = gains[:s], t = gains[:t],
+                     )
+
+The second-order SPSA, commonly referred to as `2-SPSA` method is a second-order stochastic optimization method
+based on [SPSA](https://www.jhuapl.edu/spsa/), which additional to a gradient estimate performs a Hessian correction
+on the update rule to optimize real-valued functions of a number of real variables.
+
+This function performs second-order SPSA optimization of the real-valued function `f` of complex variables by treating each complex varible
+as a pair of real variables, starting from the complex vector `z₀` and iterating `Niter` times. Then, returns a complex matrix, `zacc`, with size `(length(z₀), Niters)`,
+such that `zacc[i, j]` corresponds to the value of the `i`-th complex variable on the `j`-th iteration.
+
+The input parameters `a`, `b`, `A`, `s`, and `t` can be provided as keyword arguments of the function.
+If they are not provided explicitly, they are selected at runtime from the [`ComplexSPSA.gains`](@ref) dictionary.
+
+Since second-order effects usually show improvements once the seed value is closer to a local minimum,
+it is possible to accept a number `hessian_delay` of first-order iterations before including the application of the Hessian information.
+
+Notes
+===
+* The value of `a` is only required to perform a possible number of initial first-order iterations (via `hessian_delay`), since the second-order iterations yield an optimum value for `a = 1`.
+"""
 function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
                           sign = -1,
                           hessian_delay = 0,
-                          b = gains[:b],
+                          a = gains[:a], b = gains[:b],
                           A = gains[:A], s = gains[:s], t = gains[:t],
                           )
 
@@ -26,7 +52,7 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
     # Initial Hessian
     Hsmooth = LinearAlgebra.I(2Nz)
     for iter in 1:Niters
-        ak = 1 / (iter + A)^s # TODO: with a = 3 the tomography problem goes very well!
+        ak = 1 / (iter + A)^s
         bk = b / iter^t
 
         # Perturbations
@@ -52,8 +78,6 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
             H = (H + H')/2                    # Symmetrization
 
             # Hessian conditioning
-            # TODO In Qiskit they save the smoothed version and then regularize
-            # https://qiskit.org/documentation/_modules/qiskit/algorithms/optimizers/spsa.html#SPSA
 
             # Regularization
             H = sqrt(H*H + 1e-3LinearAlgebra.I(2Nz))
@@ -69,6 +93,8 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
             # pinv(H) * g
             #LinearAlgebra.ldiv!(LinearAlgebra.cholesky(H), gr)
             gr .= ( H \ gr )
+        else
+            ak = ak * a
         end
 
         # Update variable in-place
@@ -80,10 +106,36 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
     return zacc
 end
 
+"""
+    CSPSA2(f::Function, z₀::Vector, Niters = 200;
+           sign = -1,
+           hessian_delay = 0,
+           a = gains[:a], b = gains[:b],
+           A = gains[:A], s = gains[:s], t = gains[:t],
+           )
+
+The second-order CSPSA method, CSPSA2, is a second-order stochastic optimization method
+based on [`CSPSA`](@ref), which additional to a gradient estimate performs a Hessian correction
+on the update rule to optimize real-valued functions of a number of complex variables.
+
+This function performs second-order CSPSA optimization of the real-valued function `f` of complex variables,
+starting from the complex vector `z₀` and iterating `Niter` times. Then, returns a complex matrix, `zacc`,
+with size `(length(z₀), Niters)`, such that `zacc[i, j]` corresponds to the value of the `i`-th complex variable on the `j`-th iteration.
+
+The input parameters `a`, `b`, `A`, `s`, and `t` can be provided as keyword arguments of the function.
+If they are not provided explicitly, they are selected at runtime from the [`ComplexSPSA.gains`](@ref) dictionary.
+
+Since second-order effects usually show improvements once the seed value is closer to a local minimum,
+it is possible to accept a number `hessian_delay` of first-order iterations before including the application of the Hessian information.
+
+Notes
+===
+* The value of `a` is only required to perform a possible number of initial first-order iterations (via `hessian_delay`), since the second-order iterations yield an optimum value for `a = 1`.
+"""
 function CSPSA2(f::Function, z₀::Vector, Niters = 200;
                 sign = -1,
                 hessian_delay = 0,
-                b = gains[:b],
+                a = gains[:a], b = gains[:b],
                 A = gains[:A], s = gains[:s], t = gains[:t],
                 )
 
@@ -104,7 +156,7 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
     # Initial Hessian
     Hsmooth = LinearAlgebra.I(Nz)
     for iter in 1:Niters
-        ak = 1 / (iter + A)^s # With a=3 this works awesome. Why?
+        ak = 1 / (iter + A)^s
         bk = b / iter^t
 
         # Perturbations
@@ -130,8 +182,6 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
             H = (H + H')/2                    # Symmetrization
 
             # Hessian conditioning
-            # TODO In Qiskit they save the smoothed version and then regularize
-            # https://qiskit.org/documentation/_modules/qiskit/algorithms/optimizers/spsa.html#SPSA
 
             # Regularization
             H = sqrt(H*H + 1e-3LinearAlgebra.I(Nz))
@@ -147,6 +197,8 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
             # pinv(H) * g
             #LinearAlgebra.ldiv!(LinearAlgebra.cholesky(H), gr)
             g .= ( H \ g )
+        else
+            ak = ak * a
         end
 
         # Update variable in-place

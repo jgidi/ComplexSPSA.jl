@@ -14,7 +14,8 @@ Documenter.makedocs(
     sitename = "ComplexSPSA.jl",
     expandfirst = [],
     pages = [
-        "Home" => "index.md",
+        "Introduction" => "index.md",
+        "Optimizers" => "optimizers.md",
         "Examples" => "examples.md",
         "Qiskit Wrapper" => [
             "Introduction" => "qiskit/intro.md",
@@ -27,6 +28,6 @@ Documenter.makedocs(
 Documenter.deploydocs(
     ;
     repo = "github.com/jgidi/ComplexSPSA.jl",
-    branch = "doc-pages",
+    branch = "gh-pages",
     push_preview = true,
 )

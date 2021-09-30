@@ -1,10 +1,12 @@
 """
-    gains::Dict
+    gains = Dict(:a => 3.0, :b => 0.1,
+                 :A => 1.0, :s => 1.0, :t => 1/6)
 
 Contains the gain parameters used for the optimizers defined within the `ComplexSPSA` module.
+By default, the standard gains are used.
 """
 gains = Dict(
-    :a => 3,
+    :a => 3.0,
     :b => 0.1,
     :A => 1.0,
     :s => 1.0,
