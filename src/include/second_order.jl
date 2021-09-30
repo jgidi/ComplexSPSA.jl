@@ -78,8 +78,6 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
             H = (H + H')/2                    # Symmetrization
 
             # Hessian conditioning
-            # TODO In Qiskit they save the smoothed version and then regularize
-            # https://qiskit.org/documentation/_modules/qiskit/algorithms/optimizers/spsa.html#SPSA
 
             # Regularization
             H = sqrt(H*H + 1e-3LinearAlgebra.I(2Nz))
