@@ -16,9 +16,9 @@ a^k &= \frac{a}{(k + A + 1)^s}, \\
 b^k &= \frac{b}{(k + 1)^t},
 \end{aligned}
 ```
-are convergence factors depending on the input gain parameters $a$, $b$, $A$, $s$, and $t$.
+are convergence factors determined by the input gain parameters $a$, $b$, $A$, $s$, and $t$.
 
-By default, standard gains are defined and used package-wise from the dictionary [`ComplexSPSA.gains`](@ref),
+By default, standard gains are defined and used package-wide from the dictionary [`ComplexSPSA.gains`](@ref),
 ```@docs
 ComplexSPSA.gains
 ```

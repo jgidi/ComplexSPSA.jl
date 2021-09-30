@@ -10,14 +10,14 @@ The [Simultaneous Perturbation Stochastic Approximation (CSPSA)](https://www.jhu
 optimizer is a stochastic method for optimizing real functions of a number of real variables.
 
 This function performs SPSA optimization of the real-valued function `f` of complex variables by treating each complex varible
-as a pair of real variables, starting from the complex vector `z₀` and iterating `Niter` times.
+as a pair of real variables, starting from the complex vector `z₀` and iterating `Niter` times. Then, returns a complex matrix, `zacc`, with size `(length(z₀), Niters)`,
+such that `zacc[i, j]` corresponds to the value of the `i`-th complex variable on the `j`-th iteration.
 
 The input parameters `a`, `b`, `A`, `s`, and `t` can be provided as keyword arguments of the function.
 If they are not provided explicitly, they are selected at runtime from the [`ComplexSPSA.gains`](@ref) dictionary.
 
 Automatic calibration for the input parameter `a` can be accomplished taking `Ncalibrate` samples using the method defined on [Kandala _et. al._ (2017), Sec. 11](https://arxiv.org/pdf/1704.05018v2.pdf#section*.11).
 By default, the calibration is disabled (`Ncalibrate = 0`).
-
 """
 function SPSA_on_complex(f::Function, z₀::Vector, Niters = 200;
                          sign = -1,
@@ -85,14 +85,14 @@ optimizer is a method for optimizing real functions of a number of complex varia
 of the [SPSA method](https://www.jhuapl.edu/spsa/).
 
 This function performs CSPSA optimization of the real-valued function `f`, starting from a vector
-of complex variables `z₀` and iterating `Niter` times.
+of complex variables `z₀` and iterating `Niter` times. Then, returns a complex matrix, `zacc`, with size `(length(z₀), Niters)`,
+such that `zacc[i, j]` corresponds to the value of the `i`-th complex variable on the `j`-th iteration.
 
 The input parameters `a`, `b`, `A`, `s`, and `t` can be provided as keyword arguments of the function.
 If they are not provided explicitly, they are selected at runtime from the [`ComplexSPSA.gains`](@ref) dictionary.
 
 Automatic calibration for the input parameter `a` can be accomplished taking `Ncalibrate` samples using the method defined on [Kandala _et. al._ (2017), Sec. 11](https://arxiv.org/pdf/1704.05018v2.pdf#section*.11).
 By default, the calibration is disabled (`Ncalibrate = 0`).
-
 """
 function CSPSA(f::Function, z₀::Vector, Niters = 200;
                sign = -1,
