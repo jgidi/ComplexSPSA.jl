@@ -14,7 +14,7 @@ Documenter.makedocs(
     sitename = "ComplexSPSA.jl",
     expandfirst = [],
     pages = [
-        "Home" => "index.md",
+        "Introduction" => "index.md",
         "Examples" => "examples.md",
         "Qiskit Wrapper" => [
             "Introduction" => "qiskit/intro.md",
