@@ -1,7 +1,7 @@
 function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
                           sign = -1,
                           hessian_delay = 0,
-                          b = gains[:b],
+                          a = gains[:a], b = gains[:b],
                           A = gains[:A], s = gains[:s], t = gains[:t],
                           )
 
@@ -26,7 +26,7 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
     # Initial Hessian
     Hsmooth = LinearAlgebra.I(2Nz)
     for iter in 1:Niters
-        ak = 1 / (iter + A)^s # TODO: with a = 3 the tomography problem goes very well!
+        ak = 1 / (iter + A)^s
         bk = b / iter^t
 
         # Perturbations
@@ -69,6 +69,8 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
             # pinv(H) * g
             #LinearAlgebra.ldiv!(LinearAlgebra.cholesky(H), gr)
             gr .= ( H \ gr )
+        else
+            ak = ak * a
         end
 
         # Update variable in-place
@@ -83,7 +85,7 @@ end
 function CSPSA2(f::Function, z₀::Vector, Niters = 200;
                 sign = -1,
                 hessian_delay = 0,
-                b = gains[:b],
+                a = gains[:a], b = gains[:b],
                 A = gains[:A], s = gains[:s], t = gains[:t],
                 )
 
@@ -104,7 +106,7 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
     # Initial Hessian
     Hsmooth = LinearAlgebra.I(Nz)
     for iter in 1:Niters
-        ak = 1 / (iter + A)^s # With a=3 this works awesome. Why?
+        ak = 1 / (iter + A)^s
         bk = b / iter^t
 
         # Perturbations
@@ -130,8 +132,6 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
             H = (H + H')/2                    # Symmetrization
 
             # Hessian conditioning
-            # TODO In Qiskit they save the smoothed version and then regularize
-            # https://qiskit.org/documentation/_modules/qiskit/algorithms/optimizers/spsa.html#SPSA
 
             # Regularization
             H = sqrt(H*H + 1e-3LinearAlgebra.I(Nz))
@@ -147,6 +147,8 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
             # pinv(H) * g
             #LinearAlgebra.ldiv!(LinearAlgebra.cholesky(H), gr)
             g .= ( H \ g )
+        else
+            ak = ak * a
         end
 
         # Update variable in-place
