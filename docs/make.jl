@@ -28,6 +28,6 @@ Documenter.makedocs(
 Documenter.deploydocs(
     ;
     repo = "github.com/jgidi/ComplexSPSA.jl",
-    branch = "doc-pages",
+    branch = "gh-pages",
     push_preview = true,
 )
