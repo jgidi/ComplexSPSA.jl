@@ -39,9 +39,15 @@ CSPSA
 ```
 
 
-
-
 ## Second-order optimizers
 
+```@docs
+SPSA2_on_complex
+```
+
+
+```@docs
+CSPSA2
+```
 
 ## Natural gradient
