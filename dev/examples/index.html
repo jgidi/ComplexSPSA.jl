@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Examples · ComplexSPSA.jl</title><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">ComplexSPSA.jl</a></span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Introduction</a></li><li><a class="tocitem" href="../optimizers/">Optimizers</a></li><li class="is-active"><a class="tocitem" href>Examples</a><ul class="internal"><li><a class="tocitem" href="#Example-1"><span>Example 1</span></a></li><li><a class="tocitem" href="#Example-2"><span>Example 2</span></a></li></ul></li><li><span class="tocitem">Qiskit Wrapper</span><ul><li><a class="tocitem" href="../qiskit/intro/">Introduction</a></li><li><a class="tocitem" href="../qiskit/optimizers/">Optimizers</a></li></ul></li><li><a class="tocitem" href="../tools/">Other tools</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Examples</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Examples</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/jgidi/ComplexSPSA.jl/blob/master/docs/src/examples.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Examples"><a class="docs-heading-anchor" href="#Examples">Examples</a><a id="Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Examples" title="Permalink"></a></h1><h2 id="Example-1"><a class="docs-heading-anchor" href="#Example-1">Example 1</a><a id="Example-1-1"></a><a class="docs-heading-anchor-permalink" href="#Example-1" title="Permalink"></a></h2><p><a href="../assets/examples/qubit_tomography.jl">Example file</a></p><pre><code class="language-julia hljs">using ProgressMeter, LinearAlgebra, Statistics
+using ComplexSPSA
+
+Nvars = 2
+Nruns = 10^3
+Niters = 2*10^2
+Nmeasures = 10^3
+
+# Generate a random Haar ket in dimension d
+function rand_qudit(T::DataType, d...)
+    ket = randn(T, d...)
+
+    # Return normalized
+    return ket / LinearAlgebra.norm(ket)
+end
+
+# Fidelity between 2 qudits in their (complex) natural form
+function fidelity(guess, state)
+    prod2 = abs2(state&#39; * guess)
+    norms2 = sum(abs2, guess) * sum(abs2, state)
+    return prod2 / norms2
+end
+
+# Reference (target) state
+refstate = rand_qudit(ComplexF64, Nvars)
+
+# Theoretical functions
+infidelity(z) = 1 - fidelity(z, refstate)
+metric(z1, z2) = -0.5fidelity(z1, z2)
+
+# Experimental function to simulate
+f(z) = simulate_experiment(infidelity(z), Nmeasures)
+
+labels = [&quot;SPSA&quot;, &quot;CSPSA&quot;, &quot;SPSA2&quot;, &quot;CSPSA2&quot;, &quot;SPSA_NG&quot;, &quot;CSPSA_NG&quot;, &quot;CSPSA_NG_scalar&quot;]
+
+zacc = ones(ComplexF64, Nvars, Niters, Nruns, length(labels))
+@showprogress for run in 1:Nruns
+    guess = rand(ComplexF64, Nvars)
+    
+    zacc[:, :, run, 1] = SPSA_on_complex(f, guess, Niters)
+    zacc[:, :, run, 2] = CSPSA(f, guess, Niters)
+    zacc[:, :, run, 3] = SPSA2_on_complex(f, guess,Niters)
+    zacc[:, :, run, 4] = CSPSA2(f, guess, Niters)
+    zacc[:, :, run, 5] = SPSA_NG_on_complex(f, metric, guess, Niters)
+    zacc[:, :, run, 6] = CSPSA_NG(f, metric, guess, Niters)
+    zacc[:, :, run, 7] = CSPSA_NG_scalar(f, metric, guess, Niters)
+end
+
+# Calculate statistics
+using Statistics: mean, var
+
+# Apply theoretical fidelity over variables variables obtained
+fz = apply_along_dim(infidelity, zacc, dim = 1)
+
+# Mean and variance
+fmean = mean(fz, dims = 3)
+fvar  =  var(fz, dims = 3)
+
+# Get rid of singleton dimensions
+fmean = squeeze(fmean);
+fvar = squeeze(fvar);
+
+using Plots
+
+# Make plot
+p = plot(yscale = :log10,                  # Log scale on the y-axis
+         xlabel = &quot;Number of iterations&quot;,  # 
+         ylabel = &quot;Infidelity&quot;,            #
+         legend = :outertopright,
+)
+
+# Add all optimizers to the plot
+for i in eachindex(labels)
+    plot!(p, 1:Niters, fmean[:, i],  # Plot mean lines
+          ribbon = fvar[:, i],       # Plot variance
+          label = labels[i],         # Show optimizer label
+    )
+end
+    
+display(p)
+
+# p = plot!(p, dpi = 300)
+# savefig(p, &quot;tomography_Nruns$Nruns.png&quot;)
+
+
+</code></pre><h2 id="Example-2"><a class="docs-heading-anchor" href="#Example-2">Example 2</a><a id="Example-2-1"></a><a class="docs-heading-anchor-permalink" href="#Example-2" title="Permalink"></a></h2><p><a href="../assets/examples/ferrie.jl">Example file</a></p><pre><code class="language-julia hljs">using ProgressMeter, LinearAlgebra, Statistics
+
+using ComplexSPSA
+
+Nvars = 10
+Nruns = 100
+Niters = 500
+Nmeasures = Inf #10^3
+
+using StaticArrays
+
+function random_unitary(d)
+    q, r = qr(randn(d, d))
+    U = q * Diagonal(sign.(diag(r)))
+    return U
+end
+
+# Pauli Z, Up and Down
+Sz = SMatrix{2,2}([1.0  0.0; 0.0 -1.0])
+Su = SMatrix{2,2}([0.0  1.0; 0.0  0.0])
+Sd = SMatrix{2,2}([0.0  0.0; 1.0  0.0])
+
+# Control gate. Managed through the pulse parameters ω
+Uc(ω) = prod( exp(-im*(Sz + v*Su + conj(v)*Sd)) for v in Iterators.reverse(ω) )
+
+# Target gate
+Ut = random_unitary(2)
+
+fidelity(U1, U2) = 0.25abs2(tr(U1&#39; * U2))
+
+# W/out experimental noise
+infidelity(ω) = 1 - fidelity(Uc(ω), Ut)
+metric(ω1, ω2) = -0.5fidelity(Uc(ω1), Uc(ω2))
+
+# Experimental function to optimize
+f(z) = simulate_experiment(infidelity(z), Nmeasures)
+
+labels = [&quot;SPSA&quot;, &quot;CSPSA&quot;, &quot;SPSA2&quot;, &quot;CSPSA2&quot;, &quot;SPSA_NG&quot;, &quot;CSPSA_NG&quot;, &quot;CSPSA_NG_scalar&quot;]
+
+zacc = ones(ComplexF64, Nvars, Niters, Nruns, length(labels))
+@showprogress for run in 1:Nruns
+    guess = rand(ComplexF64, Nvars)
+    
+    zacc[:, :, run, 1] = SPSA_on_complex(f, guess, Niters)
+    zacc[:, :, run, 2] = CSPSA(f, guess, Niters)
+    zacc[:, :, run, 3] = SPSA2_on_complex(f, guess,Niters)
+    zacc[:, :, run, 4] = CSPSA2(f, guess, Niters)
+    zacc[:, :, run, 5] = SPSA_NG_on_complex(f, metric, guess, Niters)
+    zacc[:, :, run, 6] = CSPSA_NG(f, metric, guess, Niters)
+    zacc[:, :, run, 7] = CSPSA_NG_scalar(f, metric, guess, Niters)
+end
+
+# Calculate statistics
+using Statistics: mean, var
+
+# Apply theoretical fidelity over variables variables obtained
+fz = apply_along_dim(infidelity, zacc, dim = 1)
+
+# Mean and variance
+fmean = mean(fz, dims = 3)
+fvar  =  var(fz, dims = 3)
+
+# Get rid of singleton dimensions
+fmean = squeeze(fmean);
+fvar = squeeze(fvar);
+
+using Plots
+
+# Make plot
+p = plot(yscale = :log10,                  # Log scale on the y-axis
+         xlabel = &quot;Number of iterations&quot;,  # 
+         ylabel = &quot;Infidelity&quot;,            #
+         #legend = :outertopright,
+)
+
+# Add all optimizers to the plot
+for i in eachindex(labels)
+    plot!(p, 1:Niters, fmean[:, i],  # Plot mean lines
+          ribbon = fvar[:, i],       # Plot variance
+          label = labels[i],         # Show optimizer label
+    )
+end
+    
+display(p)
+
+
+</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../optimizers/">« Optimizers</a><a class="docs-footer-nextpage" href="../qiskit/intro/">Introduction »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.6 on <span class="colophon-date" title="Thursday 30 September 2021 04:25">Thursday 30 September 2021</span>. Using Julia version 1.6.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
