@@ -6,7 +6,7 @@
                     A = gains[:A], s = gains[:s], t = gains[:t],
                     )
 
-The [Simultaneous Perturbation Stochastic Approximation (CSPSA)](https://www.jhuapl.edu/spsa/)
+The [Simultaneous Perturbation Stochastic Approximation (SPSA)](https://www.jhuapl.edu/spsa/)
 optimizer is a stochastic method for optimizing real functions of a number of real variables.
 
 This function performs SPSA optimization of the real-valued function `f` of complex variables by treating each complex varible
