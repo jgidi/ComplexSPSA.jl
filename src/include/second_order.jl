@@ -31,7 +31,7 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
                           A = gains[:A], s = gains[:s], t = gains[:t],
                           )
 
-    z = copy(z₀)
+    z = z₀[:] .+ 0im
     zr = reinterpret(Float64, z)        # View of z as pairs of reals
     Nz = length(z)
 
@@ -139,7 +139,7 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
                 A = gains[:A], s = gains[:s], t = gains[:t],
                 )
 
-    z = copy(z₀)
+    z = z₀[:] .+ 0im
     Nz = length(z)
 
     # Set of possible perturbations

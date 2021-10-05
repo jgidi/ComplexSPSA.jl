@@ -31,7 +31,7 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
                             A = gains[:A], s = gains[:s], t = gains[:t],
                             )
 
-    z = copy(z₀)
+    z = z₀[:] .+ 0im
     zr = reinterpret(Float64, z)        # View of z as pairs of reals
     Nz = length(z)
 
@@ -144,7 +144,7 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
                   A = gains[:A], s = gains[:s], t = gains[:t],
                   )
 
-    z = copy(z₀)
+    z = z₀[:] .+ 0im
     Nz = length(z)
 
     # Set of possible perturbations
@@ -251,7 +251,7 @@ function CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 2
                          A = gains[:A], s = gains[:s], t = gains[:t],
                          )
 
-    z = copy(z₀)
+    z = z₀[:] .+ 0im
     Nz = length(z)
 
     # Set of possible perturbations
