@@ -1,2 +1,5 @@
 # Rendered documentation
 docs/build
+
+# Notebooks which I keep as volatile examples
+notebooks/

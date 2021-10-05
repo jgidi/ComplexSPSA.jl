@@ -10,12 +10,12 @@ The second-order SPSA, commonly referred to as `2-SPSA` method is a second-order
 based on [SPSA](https://www.jhuapl.edu/spsa/), which additional to a gradient estimate performs a Hessian correction
 on the update rule to optimize real-valued functions of a number of real variables.
 
-This function performs second-order SPSA optimization of the real-valued function `f` of complex variables by treating each complex varible
+This function performs second-order SPSA optimization of the real-valued function `f` of complex variables by treating each complex variable
 as a pair of real variables, starting from the complex vector `z₀` and iterating `Niter` times. Then, returns a complex matrix, `zacc`, with size `(length(z₀), Niters)`,
 such that `zacc[i, j]` corresponds to the value of the `i`-th complex variable on the `j`-th iteration.
 
 The input parameters `a`, `b`, `A`, `s`, and `t` can be provided as keyword arguments of the function.
-If they are not provided explicitly, they are selected at runtime from the [`ComplexSPSA.gains`](@ref) dictionary.
+If not provided explicitly, they are selected at runtime from the [`ComplexSPSA.gains`](@ref) dictionary.
 
 Since second-order effects usually show improvements once the seed value is closer to a local minimum,
 it is possible to accept a number `hessian_delay` of first-order iterations before including the application of the Hessian information.
@@ -31,7 +31,7 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
                           A = gains[:A], s = gains[:s], t = gains[:t],
                           )
 
-    z = copy(z₀)
+    z = z₀[:] .+ 0im
     zr = reinterpret(Float64, z)        # View of z as pairs of reals
     Nz = length(z)
 
@@ -139,7 +139,7 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
                 A = gains[:A], s = gains[:s], t = gains[:t],
                 )
 
-    z = copy(z₀)
+    z = z₀[:] .+ 0im
     Nz = length(z)
 
     # Set of possible perturbations

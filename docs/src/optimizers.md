@@ -4,7 +4,7 @@ This package provides a set optimizers for real-valued functions of a number of 
 
 ## First-order optimizers
 
-To reach a local minimum of $f(\bm z)$ with $\bm z \in \mathbb{C}^N$, this methods start from some seed value of $\bm z = \bm z_0$ and iterate over $k$ performing a first-order update,
+To reach a local minimum of $f(\bm z)$ with $\bm z \in \mathbb{C}^N$, this methods start from some seed value of $\bm z = \bm z^0$ and iterate over $k$ performing a first-order update,
 ```math
 \bm z^{k+1} = \bm z^k - a^k \bm g^{k}(\bm z^k, b^k),
 ```
@@ -51,3 +51,15 @@ CSPSA2
 ```
 
 ## Natural gradient
+
+```@docs
+SPSA_QN_on_complex
+```
+
+```@docs
+CSPSA_QN
+```
+
+```@docs
+CSPSA_QN_scalar
+```
