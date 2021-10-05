@@ -51,3 +51,15 @@ CSPSA2
 ```
 
 ## Natural gradient
+
+```@docs
+SPSA_QN_on_complex
+```
+
+```@docs
+CSPSA_QN
+```
+
+```@docs
+CSPSA_QN_scalar
+```

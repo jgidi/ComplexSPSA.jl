@@ -1,7 +1,33 @@
-function SPSA_NG_on_complex(f::Function, metric::Function, z₀::Vector, Niters = 200;
+"""
+    SPSA_QN_on_complex(f::Function, z₀::Vector, Niters = 200;
+                       sign = -1,
+                       hessian_delay = 0,
+                       a = gains[:a], b = gains[:b],
+                       A = gains[:A], s = gains[:s], t = gains[:t],
+                       )
+
+The Quantum Natural SPSA, presented by [Gacon _et. al_. (2021)](https://arxiv.org/abs/2103.09232), is a second-order stochastic optimization method
+based on [2-SPSA](https://www.jhuapl.edu/spsa/), where the second-order correction comes from the Hessian of the Fubini-Study metric of the problem
+instead of the Hessian of the function under optimization.
+
+This function performs Quantum Natural SPSA optimization of the real-valued function `f` of complex variables by treating each complex variable
+as a pair of real variables, starting from the complex vector `z₀` and iterating `Niter` times. Then, returns a complex matrix, `zacc`, with size
+`(length(z₀), Niters)`, such that `zacc[i, j]` corresponds to the value of the `i`-th complex variable on the `j`-th iteration.
+
+The input parameters `a`, `b`, `A`, `s`, and `t` can be provided as keyword arguments of the function.
+If not provided explicitly, they are selected at runtime from the [`ComplexSPSA.gains`](@ref) dictionary.
+
+Since second-order effects usually show improvements once the seed value is closer to a local minimum,
+it is possible to accept a number `hessian_delay` of first-order iterations before including the application of the Hessian information.
+
+Notes
+===
+* The value of `a` is only required to perform a possible number of initial first-order iterations (via `hessian_delay`), since the second-order iterations yield an optimum value for `a = 1`.
+"""
+function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters = 200;
                             sign = -1,
                             hessian_delay = 0,
-                            b = gains[:b],
+                            a = gains[:a], b = gains[:b],
                             A = gains[:A], s = gains[:s], t = gains[:t],
                             )
 
@@ -71,6 +97,8 @@ function SPSA_NG_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
             # pinv(H) * g
             #LinearAlgebra.ldiv!(LinearAlgebra.cholesky(H), gr)
             gr .= ( H \ gr )
+        else
+            ak = ak * a
         end
 
         # Update variable in-place
@@ -82,10 +110,37 @@ function SPSA_NG_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
     return zacc
 end
 
-function CSPSA_NG(f::Function, metric::Function, z₀::Vector, Niters = 200;
+"""
+    CSPSA_QN(f::Function, z₀::Vector, Niters = 200;
+             sign = -1,
+             hessian_delay = 0,
+             a = gains[:a], b = gains[:b],
+             A = gains[:A], s = gains[:s], t = gains[:t],
+             )
+
+The Quantum Natural CSPSA (QN-CSPSA), is a second-order stochastic optimization method which, analogous to the [Quantum Natural SPSA by Gacon _et. al_. (2021)](https://arxiv.org/abs/2103.09232),
+takes into account a Hessian approximation of the Fubiny-Study metric instead of the usual Hessian correction from [`CSPSA2`](@ref).
+However, the main difference between QN-CSPSA and QN-SPSA is that the former is natively formulated in terms of complex variables, while the latter
+requires real variables.
+
+This function performs Quantum Natural CSPSA optimization of the real-valued function `f` of complex variables,
+starting from the complex vector `z₀` and iterating `Niter` times. Then, returns a complex matrix, `zacc`,
+with size `(length(z₀), Niters)`, such that `zacc[i, j]` corresponds to the value of the `i`-th complex variable on the `j`-th iteration.
+
+The input parameters `a`, `b`, `A`, `s`, and `t` can be provided as keyword arguments of the function.
+If not provided explicitly, they are selected at runtime from the [`ComplexSPSA.gains`](@ref) dictionary.
+
+Since second-order effects usually show improvements once the seed value is closer to a local minimum,
+it is possible to accept a number `hessian_delay` of first-order iterations before including the application of the Hessian information.
+
+Notes
+===
+* The value of `a` is only required to perform a possible number of initial first-order iterations (via `hessian_delay`), since the second-order iterations yield an optimum value for `a = 1`.
+"""
+function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
                   sign = -1,
                   hessian_delay = 0,
-                  b = gains[:b],
+                  a = gains[:a], b = gains[:b],
                   A = gains[:A], s = gains[:s], t = gains[:t],
                   )
 
@@ -151,6 +206,8 @@ function CSPSA_NG(f::Function, metric::Function, z₀::Vector, Niters = 200;
             # pinv(H) * g
             #LinearAlgebra.ldiv!(LinearAlgebra.cholesky(H), gr)
             g .= ( H \ g )
+        else
+            ak = ak * a
         end
 
         # Update variable in-place
@@ -162,10 +219,35 @@ function CSPSA_NG(f::Function, metric::Function, z₀::Vector, Niters = 200;
     return zacc
 end
 
-function CSPSA_NG_scalar(f::Function, metric::Function, z₀::Vector, Niters = 200;
+"""
+    CSPSA_QN_scalar(f::Function, z₀::Vector, Niters = 200;
+                    sign = -1,
+                    hessian_delay = 0,
+                    a = gains[:a], b = gains[:b],
+                    A = gains[:A], s = gains[:s], t = gains[:t],
+                    )
+
+The Quantum Natural scalar CSPSA (QN-CSPSA scalar) is a method based upon QN-CSPSA, which avoids matrix operations by discarding the 2-dimensional
+perturbation distribution of the Hessian matrix and only retaining its scalar factor. This method is currently experimental.
+
+This function performs scalar-appriximated Quantum Natural CSPSA optimization of the real-valued function `f` of complex variables,
+starting from the complex vector `z₀` and iterating `Niter` times. Then, returns a complex matrix, `zacc`,
+with size `(length(z₀), Niters)`, such that `zacc[i, j]` corresponds to the value of the `i`-th complex variable on the `j`-th iteration.
+
+The input parameters `a`, `b`, `A`, `s`, and `t` can be provided as keyword arguments of the function.
+If not provided explicitly, they are selected at runtime from the [`ComplexSPSA.gains`](@ref) dictionary.
+
+Since second-order effects usually show improvements once the seed value is closer to a local minimum,
+it is possible to accept a number `hessian_delay` of first-order iterations before including the application of the Hessian information.
+
+Notes
+===
+* The value of `a` is only required to perform a possible number of initial first-order iterations (via `hessian_delay`), since the second-order iterations yield an optimum value for `a = 1`.
+"""
+function CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 200;
                          sign = -1,
                          hessian_delay = 0,
-                         b = gains[:b],
+                         a = gains[:a], b = gains[:b],
                          A = gains[:A], s = gains[:s], t = gains[:t],
                          )
 
@@ -227,6 +309,8 @@ function CSPSA_NG_scalar(f::Function, metric::Function, z₀::Vector, Niters = 2
             # pinv(H) * g
             #LinearAlgebra.ldiv!(LinearAlgebra.cholesky(H), gr)
             g .= ( H \ g )
+        else
+            ak = ak * a
         end
 
         # Update variable in-place
