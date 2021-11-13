@@ -10,6 +10,13 @@ The Quantum Natural SPSA, presented by [Gacon _et. al_. (2021)](https://arxiv.or
 based on [2-SPSA](https://www.jhuapl.edu/spsa/), where the second-order correction comes from the Hessian of the Fubini-Study metric of the problem
 instead of the Hessian of the function under optimization.
 
+Note that the metric must be a function taking two input vectors, and returning minus a half of the fidelity between the states
+generated each from one input,
+
+\$ \\text{metric}(\\vec z₁, \\vec z₂) = -\\frac{1}{2} |\\langle ψ(\\vec z₁) | ψ(\\vec z₂) \\rangle|^2, \$
+
+where \$ ψ(\\vec z) \$ is the quantum state parameterized with the variables \$ \\vec z \$.
+
 This function performs Quantum Natural SPSA optimization of the real-valued function `f` of complex variables by treating each complex variable
 as a pair of real variables, starting from the complex vector `z₀` and iterating `Niter` times. Then, returns a complex matrix, `zacc`, with size
 `(length(z₀), Niters)`, such that `zacc[i, j]` corresponds to the value of the `i`-th complex variable on the `j`-th iteration.
@@ -79,10 +86,6 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
             H = @. (dFp - dF) / (2Δ1*Δ2')     # Estimate Hessian
             H = (H + H')/2                    # Symmetrization
 
-            # Hessian conditioning
-            # TODO In Qiskit they save the smoothed version and then regularize
-            # https://qiskit.org/documentation/_modules/qiskit/algorithms/optimizers/spsa.html#SPSA
-
             # Regularization
             H = sqrt(H*H + 1e-3LinearAlgebra.I(2Nz))
 
@@ -91,11 +94,6 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
             Hsmooth = H
 
             # Correct gradient with the Hessian
-            # TODO: try
-            # ldiv!(cholesky(H), g)
-            # or
-            # pinv(H) * g
-            #LinearAlgebra.ldiv!(LinearAlgebra.cholesky(H), gr)
             gr .= ( H \ gr )
         else
             ak = ak * a
@@ -111,7 +109,7 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
 end
 
 """
-    CSPSA_QN(f::Function, z₀::Vector, Niters = 200;
+    CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
              sign = -1,
              hessian_delay = 0,
              a = gains[:a], b = gains[:b],
@@ -119,9 +117,14 @@ end
              )
 
 The Quantum Natural CSPSA (QN-CSPSA), is a second-order stochastic optimization method which, analogous to the [Quantum Natural SPSA by Gacon _et. al_. (2021)](https://arxiv.org/abs/2103.09232),
-takes into account a Hessian approximation of the Fubiny-Study metric instead of the usual Hessian correction from [`CSPSA2`](@ref).
+takes into account a stochastic approximation of the Fubiny-Study metric instead of the usual Hessian correction from [`CSPSA2`](@ref).
 However, the main difference between QN-CSPSA and QN-SPSA is that the former is natively formulated in terms of complex variables, while the latter
-requires real variables.
+requires real variables. Note that the metric must be a function taking two input vectors, and returning minus a half of the fidelity between the states
+generated each from one input,
+
+\$ \\text{metric}(\\vec z₁, \\vec z₂) = -\\frac{1}{2} |\\langle ψ(\\vec z₁) | ψ(\\vec z₂) \\rangle|^2, \$
+
+where \$ ψ(\\vec z) \$ is the quantum state parameterized with the variables \$ \\vec z \$.
 
 This function performs Quantum Natural CSPSA optimization of the real-valued function `f` of complex variables,
 starting from the complex vector `z₀` and iterating `Niter` times. Then, returns a complex matrix, `zacc`,
@@ -188,10 +191,6 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
             H = @. (dFp - dF) / (2Δ1*Δ2')     # Estimate Hessian
             H = (H + H')/2                    # Symmetrization
 
-            # Hessian conditioning
-            # TODO In Qiskit they save the smoothed version and then regularize
-            # https://qiskit.org/documentation/_modules/qiskit/algorithms/optimizers/spsa.html#SPSA
-
             # Regularization
             H = sqrt(H*H + 1e-3LinearAlgebra.I(Nz))
 
@@ -200,11 +199,6 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
             Hsmooth = H
 
             # Correct gradient with the Hessian
-            # TODO: try
-            # ldiv!(cholesky(H), g)
-            # or
-            # pinv(H) * g
-            #LinearAlgebra.ldiv!(LinearAlgebra.cholesky(H), gr)
             g .= ( H \ g )
         else
             ak = ak * a
@@ -220,7 +214,7 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
 end
 
 """
-    CSPSA_QN_scalar(f::Function, z₀::Vector, Niters = 200;
+    CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 200;
                     sign = -1,
                     hessian_delay = 0,
                     a = gains[:a], b = gains[:b],
@@ -228,7 +222,14 @@ end
                     )
 
 The Quantum Natural scalar CSPSA (QN-CSPSA scalar) is a method based upon QN-CSPSA, which avoids matrix operations by discarding the 2-dimensional
-perturbation distribution of the Hessian matrix and only retaining its scalar factor. This method is currently experimental.
+perturbation distribution of the Hessian matrix and only retaining its scalar factor. *This method is currently experimental.*
+
+Note that the metric must be a function taking two input vectors, and returning minus a half of the fidelity between the states
+generated each from one input,
+
+\$ \\text{metric}(\\vec z₁, \\vec z₂) = -\\frac{1}{2} |\\langle ψ(\\vec z₁) | ψ(\\vec z₂) \\rangle|^2, \$
+
+where \$ ψ(\\vec z) \$ is the quantum state parameterized with the variables \$ \\vec z \$.
 
 This function performs scalar-appriximated Quantum Natural CSPSA optimization of the real-valued function `f` of complex variables,
 starting from the complex vector `z₀` and iterating `Niter` times. Then, returns a complex matrix, `zacc`,
@@ -294,20 +295,11 @@ function CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 2
             dFp = metric(z, zp) - metric(z, zm)
             H = abs(dFp - dF) / (2bk^2) # Estimate Hessian # NOTE Erased the factor 1/4
 
-            # Hessian conditioning
-            # TODO In Qiskit they save the smoothed version and then regularize
-            # https://qiskit.org/documentation/_modules/qiskit/algorithms/optimizers/spsa.html#SPSA
-
             # Smoothing
             H = (iter*Hsmooth + H) / (iter+1)
             Hsmooth = H
 
             # Correct gradient with the Hessian
-            # TODO: try
-            # ldiv!(cholesky(H), g)
-            # or
-            # pinv(H) * g
-            #LinearAlgebra.ldiv!(LinearAlgebra.cholesky(H), gr)
             g .= ( H \ g )
         else
             ak = ak * a

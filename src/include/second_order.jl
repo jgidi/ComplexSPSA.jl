@@ -87,11 +87,6 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
             Hsmooth = H
 
             # Correct gradient with the Hessian
-            # TODO: try
-            # ldiv!(cholesky(H), g)
-            # or
-            # pinv(H) * g
-            #LinearAlgebra.ldiv!(LinearAlgebra.cholesky(H), gr)
             gr .= ( H \ gr )
         else
             ak = ak * a
@@ -191,11 +186,6 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
             Hsmooth = H
 
             # Correct gradient with the Hessian
-            # TODO: try
-            # ldiv!(cholesky(H), g)
-            # or
-            # pinv(H) * g
-            #LinearAlgebra.ldiv!(LinearAlgebra.cholesky(H), gr)
             g .= ( H \ g )
         else
             ak = ak * a
