@@ -86,10 +86,6 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
             H = @. (dFp - dF) / (2Δ1*Δ2')     # Estimate Hessian
             H = (H + H')/2                    # Symmetrization
 
-            # Hessian conditioning
-            # TODO In Qiskit they save the smoothed version and then regularize
-            # https://qiskit.org/documentation/_modules/qiskit/algorithms/optimizers/spsa.html#SPSA
-
             # Regularization
             H = sqrt(H*H + 1e-3LinearAlgebra.I(2Nz))
 
@@ -98,11 +94,6 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
             Hsmooth = H
 
             # Correct gradient with the Hessian
-            # TODO: try
-            # ldiv!(cholesky(H), g)
-            # or
-            # pinv(H) * g
-            #LinearAlgebra.ldiv!(LinearAlgebra.cholesky(H), gr)
             gr .= ( H \ gr )
         else
             ak = ak * a
@@ -200,10 +191,6 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
             H = @. (dFp - dF) / (2Δ1*Δ2')     # Estimate Hessian
             H = (H + H')/2                    # Symmetrization
 
-            # Hessian conditioning
-            # TODO In Qiskit they save the smoothed version and then regularize
-            # https://qiskit.org/documentation/_modules/qiskit/algorithms/optimizers/spsa.html#SPSA
-
             # Regularization
             H = sqrt(H*H + 1e-3LinearAlgebra.I(Nz))
 
@@ -212,11 +199,6 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
             Hsmooth = H
 
             # Correct gradient with the Hessian
-            # TODO: try
-            # ldiv!(cholesky(H), g)
-            # or
-            # pinv(H) * g
-            #LinearAlgebra.ldiv!(LinearAlgebra.cholesky(H), gr)
             g .= ( H \ g )
         else
             ak = ak * a
@@ -313,20 +295,11 @@ function CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 2
             dFp = metric(z, zp) - metric(z, zm)
             H = abs(dFp - dF) / (2bk^2) # Estimate Hessian # NOTE Erased the factor 1/4
 
-            # Hessian conditioning
-            # TODO In Qiskit they save the smoothed version and then regularize
-            # https://qiskit.org/documentation/_modules/qiskit/algorithms/optimizers/spsa.html#SPSA
-
             # Smoothing
             H = (iter*Hsmooth + H) / (iter+1)
             Hsmooth = H
 
             # Correct gradient with the Hessian
-            # TODO: try
-            # ldiv!(cholesky(H), g)
-            # or
-            # pinv(H) * g
-            #LinearAlgebra.ldiv!(LinearAlgebra.cholesky(H), gr)
             g .= ( H \ g )
         else
             ak = ak * a
