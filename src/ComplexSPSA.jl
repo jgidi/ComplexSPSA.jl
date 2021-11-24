@@ -4,9 +4,10 @@ module ComplexSPSA
 # Qiskit wrapper submodule
 export Qiskit
 # Optimzers
-export SPSA_on_complex, CSPSA                        # First order
-export SPSA2_on_complex, CSPSA2                      # Second order
-export SPSA_QN_on_complex, CSPSA_QN, CSPSA_QN_scalar # Natural gradient
+export SPSA_on_complex, CSPSA                     # First order
+export SPSA2_on_complex, CSPSA2                   # Second order
+export SPSA_QN_on_complex, CSPSA_QN               # Natural gradient
+export SPSA_QN_scalar_on_complex, CSPSA_QN_scalar # Scalar Natural gradient
 # Tools
 export squeeze, apply_along_dim, simulate_experiment
 
