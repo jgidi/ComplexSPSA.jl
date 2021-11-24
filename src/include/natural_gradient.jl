@@ -322,7 +322,7 @@ end
                               A = gains[:A], s = gains[:s], t = gains[:t],
                               )
 
-The Quantum Natural scalar SPSA (QN-PSA scalar) is a method based upon QN-SPSA, which avoids matrix operations by discarding the 2-dimensional
+The Quantum Natural scalar SPSA (QN-SPSA scalar) is a method based upon QN-SPSA, which avoids matrix operations by discarding the 2-dimensional
 perturbation distribution of the Hessian matrix and only retaining its scalar factor. *This method is currently experimental.*
 
 Note that the metric must be a function taking two input vectors, and returning minus a half of the fidelity between the states

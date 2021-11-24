@@ -61,5 +61,9 @@ CSPSA_QN
 ```
 
 ```@docs
+SPSA_QN_scalar_on_complex
+```
+
+```@docs
 CSPSA_QN_scalar
 ```
