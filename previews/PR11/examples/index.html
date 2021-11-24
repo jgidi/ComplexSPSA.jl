@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Examples · ComplexSPSA.jl</title><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">ComplexSPSA.jl</a></span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Introduction</a></li><li><a class="tocitem" href="../optimizers/">Optimizers</a></li><li class="is-active"><a class="tocitem" href>Examples</a><ul class="internal"><li><a class="tocitem" href="#Example-1-CSPSA-optimization-of-a-simple-function"><span>Example 1 - CSPSA optimization of a simple function</span></a></li><li><a class="tocitem" href="#Example-2-CSPSA-vs-SPSA-on-qubit-tomography-(single-run)"><span>Example 2 - CSPSA vs SPSA on qubit tomography (single run)</span></a></li><li><a class="tocitem" href="#Example-3-CSPSA-vs-SPSA-on-qubit-tomography-(multiple-runs)"><span>Example 3 - CSPSA vs SPSA on qubit tomography (multiple runs)</span></a></li><li><a class="tocitem" href="#Example-4"><span>Example 4</span></a></li><li><a class="tocitem" href="#Example-5"><span>Example 5</span></a></li></ul></li><li><span class="tocitem">Qiskit Wrapper</span><ul><li><a class="tocitem" href="../qiskit/intro/">Introduction</a></li><li><a class="tocitem" href="../qiskit/optimizers/">Optimizers</a></li></ul></li><li><a class="tocitem" href="../tools/">Other tools</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Examples</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Examples</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/jgidi/ComplexSPSA.jl/blob/master/docs/src/examples.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Examples"><a class="docs-heading-anchor" href="#Examples">Examples</a><a id="Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Examples" title="Permalink"></a></h1><h2 id="Example-1-CSPSA-optimization-of-a-simple-function"><a class="docs-heading-anchor" href="#Example-1-CSPSA-optimization-of-a-simple-function">Example 1 - CSPSA optimization of a simple function</a><a id="Example-1-CSPSA-optimization-of-a-simple-function-1"></a><a class="docs-heading-anchor-permalink" href="#Example-1-CSPSA-optimization-of-a-simple-function" title="Permalink"></a></h2><p><a href="../assets/examples/ex01.jl">Download file</a></p><pre><code class="language-julia hljs"># Require the library
+using ComplexSPSA
+
+# Define some objective function.
+# In this case, a simple example given by | z - i |^2,
+# with its minimum at z = i
+f(z) = abs2( z[1] - 1im )
+
+# Optimize using CSPSA, starting from z0 = [0.0] and iterating 50 times.
+# Remember that the function &#39;f&#39; must take an array as input and output a real scalar,
+# and, therefore, the seed must be also an array.
+# The output &#39;z&#39; is an array with 2 dimensions, where z[i, j] is the
+# i-th complex variable optimized at the j-th iteration.
+z = CSPSA(f, [0.0], 10)
+
+# Evaluate the function &#39;f&#39; along the first dimension of &#39;z&#39;.
+# The result will be an array of the objective function at each iteration
+# (that is, an array with length 10).
+fz = [f(z[:, i]) for i in axes(z, 2)]
+
+# Since the function under optimization is very simple, 10 iterations
+# should be enough to make last value of &#39;fz&#39; approximately 0.
+@show fz[end]
+</code></pre><h2 id="Example-2-CSPSA-vs-SPSA-on-qubit-tomography-(single-run)"><a class="docs-heading-anchor" href="#Example-2-CSPSA-vs-SPSA-on-qubit-tomography-(single-run)">Example 2 - CSPSA vs SPSA on qubit tomography (single run)</a><a id="Example-2-CSPSA-vs-SPSA-on-qubit-tomography-(single-run)-1"></a><a class="docs-heading-anchor-permalink" href="#Example-2-CSPSA-vs-SPSA-on-qubit-tomography-(single-run)" title="Permalink"></a></h2><p><a href="../assets/examples/ex02.jl">Download file</a></p><pre><code class="language-julia hljs"># Remember to install the required libraries first, or this lines
+# will throw and error.
+using ComplexSPSA               #
+using LinearAlgebra             # Provides &#39;norm&#39;
+using PyPlot                    # uses PyPlot from python to make plots
+
+## Define the problem
+
+# Generate a random qubit
+function rand_qubit()
+    ket = randn(Complex{Float64}, 2)
+
+    # Return normalized
+    return ket / LinearAlgebra.norm(ket)
+end
+
+# Infidelity between 2 qubits, &#39;guess&#39; and &#39;state&#39;
+function infidelity(guess, state)
+    prod2 = abs2(state&#39; * guess)
+    norms2 = sum(abs2, guess) * sum(abs2, state)
+    return 1 - prod2/norms2
+end
+
+# Generate a reference (target) state
+refstate = rand_qubit()
+
+# Define objective function as the infidelity of the argument
+# with respect to the reference state
+f(z) = infidelity(z, refstate)
+
+
+## Optimize &#39;f&#39; using CSPSA and SPSA
+guess = rand_qubit()                # Random qubit as a guess
+zC = CSPSA(f, guess, 100)           # 100 iterations of CSPSA
+zS = SPSA_on_complex(f, guess, 100) # 100 iterations of CSPSA
+
+
+## Obtain the infidelities per iteration
+fzC = [f(zC[:, i]) for i in axes(zC, 2)]
+fzS = [f(zS[:, i]) for i in axes(zS, 2)]
+
+
+## Make a plot, using the library PyPlot
+
+# Logarithmic scale on y-axis
+semilogy(1:100, fzC, label = &quot;CSPSA&quot;)
+semilogy(1:100, fzS, label = &quot;SPSA&quot;)
+
+# Labels
+xlabel(&quot;Interations&quot;)
+ylabel(&quot;Infidelity&quot;)
+
+# Show legend
+legend(loc=&quot;best&quot;)
+
+show()
+</code></pre><h2 id="Example-3-CSPSA-vs-SPSA-on-qubit-tomography-(multiple-runs)"><a class="docs-heading-anchor" href="#Example-3-CSPSA-vs-SPSA-on-qubit-tomography-(multiple-runs)">Example 3 - CSPSA vs SPSA on qubit tomography (multiple runs)</a><a id="Example-3-CSPSA-vs-SPSA-on-qubit-tomography-(multiple-runs)-1"></a><a class="docs-heading-anchor-permalink" href="#Example-3-CSPSA-vs-SPSA-on-qubit-tomography-(multiple-runs)" title="Permalink"></a></h2><p><a href="../assets/examples/ex03.jl">Download file</a></p><pre><code class="language-julia hljs"># Remember to install the required libraries first, or this lines
+# will throw and error.
+using ComplexSPSA               #
+using LinearAlgebra             # Provides &#39;norm&#39;
+using Statistics                # Provides &#39;mean&#39; and &#39;var&#39;
+using PyPlot                    # uses PyPlot from python to make plots
+
+## Define the problem
+
+# Generate a random qubit
+function rand_qubit()
+    ket = randn(Complex{Float64}, 2)
+
+    # Return normalized
+    return ket / LinearAlgebra.norm(ket)
+end
+
+# Infidelity between 2 qubits, &#39;guess&#39; and &#39;state&#39;
+function infidelity(guess, state)
+    prod2 = abs2(state&#39; * guess)
+    norms2 = sum(abs2, guess) * sum(abs2, state)
+    return 1 - prod2/norms2
+end
+
+# Generate a reference (target) state
+refstate = rand_qubit()
+
+# Define objective function as the infidelity of the argument
+# with respect to the reference state
+f(z) = infidelity(z, refstate)
+
+
+## Optimize &#39;f&#39; using CSPSA and SPSA
+
+Niters = 100                    # Number of iterations
+Nruns = 1000                    # Number of runs
+
+# Make an array to store results
+# Axes are: (1 : variable number), (2 : iteration),
+# (3 : run number), (4 : optimizer number)
+z = ones(ComplexF64, 2, Niters, Nruns, 2)
+for run in 1:Nruns
+    guess = rand_qubit()        # Random qubit as a guess
+
+    z[:, :, run, 1] = CSPSA(f, guess, Niters)
+    z[:, :, run, 2] = SPSA_on_complex(f, guess, Niters)
+end
+
+## Obtain the infidelity statistics per iteration
+
+# Apply the function &#39;f&#39; along the first axis
+# &#39;apply_along_dim&#39; is provided by ComplexSPSA
+fz = apply_along_dim(f, z, dim = 1)
+
+# Get the mean and variance along the axis of runs (3rd axis)
+fmean = mean(fz, dims = 3)
+fvar  =  var(fz, dims = 3)
+
+# Remove singleton (reduced, length-1) dimensions
+# &#39;squeeze&#39; is provided by ComplexSPSA
+fmean = squeeze(fmean)
+fvar = squeeze(fvar)
+
+# Now &#39;fmean&#39; and &#39;fvar&#39; have 2 axes: (1: iteration) and (2: optimizer)
+
+# ## Make a plot, using the library PyPlot
+
+# Logarithmic scale on y-axis
+# Plot mean values
+semilogy(1:Niters, fmean[:, 1], label = &quot;CSPSA&quot;)
+semilogy(1:Niters, fmean[:, 2], label = &quot;SPSA&quot;)
+# Plot variances
+fill_between(1:Niters, fmean[:, 1]-fvar[:, 1], fmean[:, 1]+fvar[:, 1], alpha = 0.5)
+fill_between(1:Niters, fmean[:, 2]-fvar[:, 2], fmean[:, 2]+fvar[:, 2], alpha = 0.5)
+
+# Labels
+xlabel(&quot;Interations&quot;)
+ylabel(&quot;Infidelity&quot;)
+
+# Show legend
+legend(loc=&quot;best&quot;)
+
+show()
+</code></pre><h2 id="Example-4"><a class="docs-heading-anchor" href="#Example-4">Example 4</a><a id="Example-4-1"></a><a class="docs-heading-anchor-permalink" href="#Example-4" title="Permalink"></a></h2><p><a href="../assets/examples/qubit_tomography.jl">Download file</a></p><pre><code class="language-julia hljs">using ProgressMeter, LinearAlgebra, Statistics
+using ComplexSPSA
+
+Nvars = 2
+Nruns = 10^3
+Niters = 2*10^2
+Nmeasures = 10^3
+
+# Generate a random Haar ket in dimension d
+function rand_qudit(T::DataType, d...)
+    ket = randn(T, d...)
+
+    # Return normalized
+    return ket / LinearAlgebra.norm(ket)
+end
+
+# Fidelity between 2 qudits in their (complex) natural form
+function fidelity(guess, state)
+    prod2 = abs2(state&#39; * guess)
+    norms2 = sum(abs2, guess) * sum(abs2, state)
+    return prod2 / norms2
+end
+
+# Reference (target) state
+refstate = rand_qudit(ComplexF64, Nvars)
+
+# Theoretical functions
+infidelity(z) = 1 - fidelity(z, refstate)
+metric(z1, z2) = -0.5fidelity(z1, z2)
+
+# Experimental function to simulate
+f(z) = simulate_experiment(infidelity(z), Nmeasures)
+
+labels = [&quot;SPSA&quot;, &quot;CSPSA&quot;, &quot;SPSA2&quot;, &quot;CSPSA2&quot;, &quot;SPSA_QN&quot;, &quot;CSPSA_QN&quot;, &quot;CSPSA_QN_scalar&quot;]
+
+zacc = ones(ComplexF64, Nvars, Niters, Nruns, length(labels))
+@showprogress for run in 1:Nruns
+    guess = rand(ComplexF64, Nvars)
+    
+    zacc[:, :, run, 1] = SPSA_on_complex(f, guess, Niters)
+    zacc[:, :, run, 2] = CSPSA(f, guess, Niters)
+    zacc[:, :, run, 3] = SPSA2_on_complex(f, guess,Niters)
+    zacc[:, :, run, 4] = CSPSA2(f, guess, Niters)
+    zacc[:, :, run, 5] = SPSA_QN_on_complex(f, metric, guess, Niters)
+    zacc[:, :, run, 6] = CSPSA_QN(f, metric, guess, Niters)
+    zacc[:, :, run, 7] = CSPSA_QN_scalar(f, metric, guess, Niters)
+end
+
+# Calculate statistics
+using Statistics: mean, var
+
+# Apply theoretical fidelity over variables variables obtained
+fz = apply_along_dim(infidelity, zacc, dim = 1)
+
+# Mean and variance
+fmean = mean(fz, dims = 3)
+fvar  =  var(fz, dims = 3)
+
+# Get rid of singleton dimensions
+fmean = squeeze(fmean);
+fvar = squeeze(fvar);
+
+using Plots
+
+# Make plot
+p = plot(yscale = :log10,                  # Log scale on the y-axis
+         xlabel = &quot;Number of iterations&quot;,  # 
+         ylabel = &quot;Infidelity&quot;,            #
+         legend = :outertopright,
+)
+
+# Add all optimizers to the plot
+for i in eachindex(labels)
+    plot!(p, 1:Niters, fmean[:, i],  # Plot mean lines
+          ribbon = fvar[:, i],       # Plot variance
+          label = labels[i],         # Show optimizer label
+    )
+end
+    
+display(p)
+
+# p = plot!(p, dpi = 300)
+# savefig(p, &quot;tomography_Nruns$Nruns.png&quot;)
+
+
+</code></pre><h2 id="Example-5"><a class="docs-heading-anchor" href="#Example-5">Example 5</a><a id="Example-5-1"></a><a class="docs-heading-anchor-permalink" href="#Example-5" title="Permalink"></a></h2><p><a href="../assets/examples/ferrie.jl">Download file</a></p><pre><code class="language-julia hljs">using ProgressMeter, LinearAlgebra, Statistics
+
+using ComplexSPSA
+
+Nvars = 10
+Nruns = 100
+Niters = 500
+Nmeasures = Inf #10^3
+
+using StaticArrays
+
+function random_unitary(d)
+    q, r = qr(randn(d, d))
+    U = q * Diagonal(sign.(diag(r)))
+    return U
+end
+
+# Pauli Z, Up and Down
+Sz = SMatrix{2,2}([1.0  0.0; 0.0 -1.0])
+Su = SMatrix{2,2}([0.0  1.0; 0.0  0.0])
+Sd = SMatrix{2,2}([0.0  0.0; 1.0  0.0])
+
+# Control gate. Managed through the pulse parameters ω
+Uc(ω) = prod( exp(-im*(Sz + v*Su + conj(v)*Sd)) for v in Iterators.reverse(ω) )
+
+# Target gate
+Ut = random_unitary(2)
+
+fidelity(U1, U2) = 0.25abs2(tr(U1&#39; * U2))
+
+# W/out experimental noise
+infidelity(ω) = 1 - fidelity(Uc(ω), Ut)
+metric(ω1, ω2) = -0.5fidelity(Uc(ω1), Uc(ω2))
+
+# Experimental function to optimize
+f(z) = simulate_experiment(infidelity(z), Nmeasures)
+
+labels = [&quot;SPSA&quot;, &quot;CSPSA&quot;, &quot;SPSA2&quot;, &quot;CSPSA2&quot;, &quot;SPSA_QN&quot;, &quot;CSPSA_QN&quot;, &quot;CSPSA_QN_scalar&quot;]
+
+zacc = ones(ComplexF64, Nvars, Niters, Nruns, length(labels))
+@showprogress for run in 1:Nruns
+    guess = rand(ComplexF64, Nvars)
+    
+    zacc[:, :, run, 1] = SPSA_on_complex(f, guess, Niters)
+    zacc[:, :, run, 2] = CSPSA(f, guess, Niters)
+    zacc[:, :, run, 3] = SPSA2_on_complex(f, guess,Niters)
+    zacc[:, :, run, 4] = CSPSA2(f, guess, Niters)
+    zacc[:, :, run, 5] = SPSA_QN_on_complex(f, metric, guess, Niters)
+    zacc[:, :, run, 6] = CSPSA_QN(f, metric, guess, Niters)
+    zacc[:, :, run, 7] = CSPSA_QN_scalar(f, metric, guess, Niters)
+end
+
+# Calculate statistics
+using Statistics: mean, var
+
+# Apply theoretical fidelity over variables variables obtained
+fz = apply_along_dim(infidelity, zacc, dim = 1)
+
+# Mean and variance
+fmean = mean(fz, dims = 3)
+fvar  =  var(fz, dims = 3)
+
+# Get rid of singleton dimensions
+fmean = squeeze(fmean);
+fvar = squeeze(fvar);
+
+using Plots
+
+# Make plot
+p = plot(yscale = :log10,                  # Log scale on the y-axis
+         xlabel = &quot;Number of iterations&quot;,  # 
+         ylabel = &quot;Infidelity&quot;,            #
+         #legend = :outertopright,
+)
+
+# Add all optimizers to the plot
+for i in eachindex(labels)
+    plot!(p, 1:Niters, fmean[:, i],  # Plot mean lines
+          ribbon = fvar[:, i],       # Plot variance
+          label = labels[i],         # Show optimizer label
+    )
+end
+    
+display(p)
+
+
+</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../optimizers/">« Optimizers</a><a class="docs-footer-nextpage" href="../qiskit/intro/">Introduction »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.6 on <span class="colophon-date" title="Wednesday 24 November 2021 03:19">Wednesday 24 November 2021</span>. Using Julia version 1.6.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
