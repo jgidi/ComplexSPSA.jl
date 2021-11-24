@@ -231,7 +231,7 @@ generated each from one input,
 
 where \$ ψ(\\vec z) \$ is the quantum state parameterized with the variables \$ \\vec z \$.
 
-This function performs scalar-appriximated Quantum Natural CSPSA optimization of the real-valued function `f` of complex variables,
+This function performs scalar-approximated Quantum Natural CSPSA optimization of the real-valued function `f` of complex variables,
 starting from the complex vector `z₀` and iterating `Niter` times. Then, returns a complex matrix, `zacc`,
 with size `(length(z₀), Niters)`, such that `zacc[i, j]` corresponds to the value of the `i`-th complex variable on the `j`-th iteration.
 
@@ -294,6 +294,111 @@ function CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 2
 
             dFp = metric(z, zp) - metric(z, zm)
             H = abs(dFp - dF) / (2bk^2) # Estimate Hessian # NOTE Erased the factor 1/4
+
+            # Smoothing
+            H = (iter*Hsmooth + H) / (iter+1)
+            Hsmooth = H
+
+            # Correct gradient with the Hessian
+            g .= ( H \ g )
+        else
+            ak = ak * a
+        end
+
+        # Update variable in-place
+        @. z += sign * ak * g
+
+        zacc[:, iter] = z
+    end
+
+    return zacc
+end
+
+"""
+    SPSA_QN_scalar_on_complex(f::Function, metric::Function, z₀::Vector, Niters = 200;
+                              sign = -1,
+                              hessian_delay = 0,
+                              a = gains[:a], b = gains[:b],
+                              A = gains[:A], s = gains[:s], t = gains[:t],
+                              )
+
+The Quantum Natural scalar SPSA (QN-PSA scalar) is a method based upon QN-SPSA, which avoids matrix operations by discarding the 2-dimensional
+perturbation distribution of the Hessian matrix and only retaining its scalar factor. *This method is currently experimental.*
+
+Note that the metric must be a function taking two input vectors, and returning minus a half of the fidelity between the states
+generated each from one input,
+
+\$ \\text{metric}(\\vec z₁, \\vec z₂) = -\\frac{1}{2} |\\langle ψ(\\vec z₁) | ψ(\\vec z₂) \\rangle|^2, \$
+
+where \$ ψ(\\vec z) \$ is the quantum state parameterized with the variables \$ \\vec z \$.
+
+This function performs scalar-approximated Quantum Natural SPSA optimization of the real-valued function `f` of complex variables by treating each
+complex variable as a pair of real variables, starting from the complex vector `z₀` and iterating `Niter` times. Then, returns a complex matrix,
+`zacc`, with size `(length(z₀), Niters)`, such that `zacc[i, j]` corresponds to the value of the `i`-th complex variable on the `j`-th iteration.
+
+The input parameters `a`, `b`, `A`, `s`, and `t` can be provided as keyword arguments of the function.
+If not provided explicitly, they are selected at runtime from the [`ComplexSPSA.gains`](@ref) dictionary.
+
+Since second-order effects usually show improvements once the seed value is closer to a local minimum,
+it is possible to accept a number `hessian_delay` of first-order iterations before including the application of the Hessian information.
+
+Notes
+===
+* The value of `a` is only required to perform a possible number of initial first-order iterations (via `hessian_delay`), since the second-order iterations yield an optimum value for `a = 1`.
+"""
+function SPSA_QN_scalar_on_complex(f::Function, metric::Function, z₀::Vector, Niters = 200;
+                                   sign = -1,
+                                   hessian_delay = 0,
+                                   a = gains[:a], b = gains[:b],
+                                   A = gains[:A], s = gains[:s], t = gains[:t],
+                                   )
+
+    z = z₀[:] .+ 0im
+    zr = reinterpret(Float64, z)
+    Nz = length(z)
+
+    # Set of possible perturbations
+    samples = Float64.((-1, 1))
+
+    # Preallocate some quantities and views
+    g  = similar(z)
+    zp = similar(z)
+    zm = similar(z)
+    gr  = reinterpret(Float64, g)
+    zpr = reinterpret(Float64, zp)
+    zmr = reinterpret(Float64, zm)
+
+    # Accumulator
+    zacc = Array{Complex{Float64}}(undef, Nz, Niters)
+
+    # Initial Hessian
+    Hsmooth = 1.0
+    for iter in 1:Niters
+        ak = 1 / (iter + A)^s
+        bk = b / iter^t
+
+        # Perturbations
+        Δ1 = bk*rand(samples, 2Nz)
+        Δ2 = bk*rand(samples, 2Nz)
+
+        # First order
+        # Gradient estimation as a central difference of the loss function
+        @. zpr = zr + Δ1                  # Perturb variables
+        @. zmr = zr - Δ1
+
+        df = f(zp) - f(zm)
+        @. gr = df / (2Δ1)
+
+        if iter > hessian_delay
+            dF = metric(z, zp) - metric(z, zm)
+
+            # Second order
+            # Hessian estimation as a forward difference of the gradient
+            @. zpr = zr + Δ1 + Δ2
+            @. zmr = zr - Δ1 + Δ2
+
+            dFp = metric(z, zp) - metric(z, zm)
+            H = abs(dFp - dF) / (2bk^2) # Estimate Hessian scalar factor
 
             # Smoothing
             H = (iter*Hsmooth + H) / (iter+1)
