@@ -3,16 +3,20 @@ using ProgressMeter, LinearAlgebra, Statistics
 using ComplexSPSA
 
 Nvars = 10
-Nruns = 100
+Nruns = 1000
 Niters = 500
 Nmeasures = Inf #10^3
 
 using StaticArrays
 
-function random_unitary(d)
-    q, r = qr(randn(d, d))
-    U = q * Diagonal(sign.(diag(r)))
-    return U
+state0 = SVector(0.0, 1.0)
+state1 = SVector(1.0, 0.0)
+function random_state()
+    α, β = rand(Complex{Float64}, 2)
+
+    ψ = α*state0 + β*state1
+
+    return ψ / norm(ψ)
 end
 
 # Pauli Z, Up and Down
@@ -20,13 +24,20 @@ Sz = SMatrix{2,2}([1.0  0.0; 0.0 -1.0])
 Su = SMatrix{2,2}([0.0  1.0; 0.0  0.0])
 Sd = SMatrix{2,2}([0.0  0.0; 1.0  0.0])
 
+# Reference states
+U0 = random_state()             # Initial state
+Ut = random_state()             # Final state
+
 # Control gate. Managed through the pulse parameters ω
-Uc(ω) = prod( exp(-im*(Sz + v*Su + conj(v)*Sd)) for v in Iterators.reverse(ω) )
+function Uc(ω)
+    U = U0
+    for v in ω
+        U = exp(-0.5im*(Sz + v*Su + conj(v)*Sd)) * U
+    end
+    return U
+end
 
-# Target gate
-Ut = random_unitary(2)
-
-fidelity(U1, U2) = 0.25abs2(tr(U1' * U2))
+fidelity(U1, U2) =  abs2(U1' * U2) / abs2( norm(U1) * norm(U2)  )
 
 # W/out experimental noise
 infidelity(ω) = 1 - fidelity(Uc(ω), Ut)
@@ -35,7 +46,7 @@ metric(ω1, ω2) = -0.5fidelity(Uc(ω1), Uc(ω2))
 # Experimental function to optimize
 f(z) = simulate_experiment(infidelity(z), Nmeasures)
 
-labels = ["SPSA", "CSPSA", "SPSA2", "CSPSA2", "SPSA_QN", "CSPSA_QN", "CSPSA_QN_scalar"]
+labels = ["SPSA", "CSPSA", "SPSA2", "CSPSA2", "SPSA_QN", "CSPSA_QN", "SPSA_QN_scalar_on_complex", "CSPSA_QN_scalar"]
 
 zacc = ones(ComplexF64, Nvars, Niters, Nruns, length(labels))
 @showprogress for run in 1:Nruns
@@ -47,7 +58,8 @@ zacc = ones(ComplexF64, Nvars, Niters, Nruns, length(labels))
     zacc[:, :, run, 4] = CSPSA2(f, guess, Niters)
     zacc[:, :, run, 5] = SPSA_QN_on_complex(f, metric, guess, Niters)
     zacc[:, :, run, 6] = CSPSA_QN(f, metric, guess, Niters)
-    zacc[:, :, run, 7] = CSPSA_QN_scalar(f, metric, guess, Niters)
+    zacc[:, :, run, 7] = SPSA_QN_scalar_on_complex(f, metric, guess, Niters)
+    zacc[:, :, run, 8] = CSPSA_QN_scalar(f, metric, guess, Niters)
 end
 
 # Calculate statistics

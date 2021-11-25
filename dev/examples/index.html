@@ -251,16 +251,20 @@ display(p)
 using ComplexSPSA
 
 Nvars = 10
-Nruns = 100
+Nruns = 1000
 Niters = 500
 Nmeasures = Inf #10^3
 
 using StaticArrays
 
-function random_unitary(d)
-    q, r = qr(randn(d, d))
-    U = q * Diagonal(sign.(diag(r)))
-    return U
+state0 = SVector(0.0, 1.0)
+state1 = SVector(1.0, 0.0)
+function random_state()
+    α, β = rand(Complex{Float64}, 2)
+
+    ψ = α*state0 + β*state1
+
+    return ψ / norm(ψ)
 end
 
 # Pauli Z, Up and Down
@@ -268,13 +272,20 @@ Sz = SMatrix{2,2}([1.0  0.0; 0.0 -1.0])
 Su = SMatrix{2,2}([0.0  1.0; 0.0  0.0])
 Sd = SMatrix{2,2}([0.0  0.0; 1.0  0.0])
 
+# Reference states
+U0 = random_state()             # Initial state
+Ut = random_state()             # Final state
+
 # Control gate. Managed through the pulse parameters ω
-Uc(ω) = prod( exp(-im*(Sz + v*Su + conj(v)*Sd)) for v in Iterators.reverse(ω) )
+function Uc(ω)
+    U = U0
+    for v in ω
+        U = exp(-0.5im*(Sz + v*Su + conj(v)*Sd)) * U
+    end
+    return U
+end
 
-# Target gate
-Ut = random_unitary(2)
-
-fidelity(U1, U2) = 0.25abs2(tr(U1&#39; * U2))
+fidelity(U1, U2) =  abs2(U1&#39; * U2) / abs2( norm(U1) * norm(U2)  )
 
 # W/out experimental noise
 infidelity(ω) = 1 - fidelity(Uc(ω), Ut)
@@ -283,7 +294,7 @@ metric(ω1, ω2) = -0.5fidelity(Uc(ω1), Uc(ω2))
 # Experimental function to optimize
 f(z) = simulate_experiment(infidelity(z), Nmeasures)
 
-labels = [&quot;SPSA&quot;, &quot;CSPSA&quot;, &quot;SPSA2&quot;, &quot;CSPSA2&quot;, &quot;SPSA_QN&quot;, &quot;CSPSA_QN&quot;, &quot;CSPSA_QN_scalar&quot;]
+labels = [&quot;SPSA&quot;, &quot;CSPSA&quot;, &quot;SPSA2&quot;, &quot;CSPSA2&quot;, &quot;SPSA_QN&quot;, &quot;CSPSA_QN&quot;, &quot;SPSA_QN_scalar_on_complex&quot;, &quot;CSPSA_QN_scalar&quot;]
 
 zacc = ones(ComplexF64, Nvars, Niters, Nruns, length(labels))
 @showprogress for run in 1:Nruns
@@ -295,7 +306,8 @@ zacc = ones(ComplexF64, Nvars, Niters, Nruns, length(labels))
     zacc[:, :, run, 4] = CSPSA2(f, guess, Niters)
     zacc[:, :, run, 5] = SPSA_QN_on_complex(f, metric, guess, Niters)
     zacc[:, :, run, 6] = CSPSA_QN(f, metric, guess, Niters)
-    zacc[:, :, run, 7] = CSPSA_QN_scalar(f, metric, guess, Niters)
+    zacc[:, :, run, 7] = SPSA_QN_scalar_on_complex(f, metric, guess, Niters)
+    zacc[:, :, run, 8] = CSPSA_QN_scalar(f, metric, guess, Niters)
 end
 
 # Calculate statistics
@@ -332,4 +344,4 @@ end
 display(p)
 
 
-</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../optimizers/">« Optimizers</a><a class="docs-footer-nextpage" href="../qiskit/intro/">Introduction »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.6 on <span class="colophon-date" title="Wednesday 24 November 2021 03:18">Wednesday 24 November 2021</span>. Using Julia version 1.6.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../optimizers/">« Optimizers</a><a class="docs-footer-nextpage" href="../qiskit/intro/">Introduction »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.6 on <span class="colophon-date" title="Thursday 25 November 2021 19:02">Thursday 25 November 2021</span>. Using Julia version 1.6.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
