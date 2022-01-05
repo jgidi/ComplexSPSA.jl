@@ -3,7 +3,7 @@ using ProgressMeter, LinearAlgebra, Statistics, StaticArrays
 using ComplexSPSA
 
 Nvars = 10
-Nruns = 1000
+Nruns = 100
 Niters = 500
 Nmeasures = 2^13 #10^3
 
@@ -79,7 +79,7 @@ styles =[:line, :dot]
 lw = 2
 
 # First order
-p1 = plot(ylabel = "Infidelity", leftmargin=-5Plots.mm)
+p1 = plot(ylabel = "Infidelity", leftmargin=6Plots.mm)
 # Mean
 plot!(p1, 1:Niters, fmean[:, 1], ribbon=fvar[:, 1], line=(colors[1], lw), label="SPSA")
 plot!(p1, 1:Niters, fmean[:, 2], ribbon=fvar[:, 2], line=(colors[2], lw), label="CSPSA")
@@ -88,7 +88,7 @@ plot!(p1, 1:Niters, fmedian[:, 1], line=(colors[1], lw, styles[2]), label=false)
 plot!(p1, 1:Niters, fmedian[:, 2], line=(colors[2], lw, styles[2]), label=false)
 
 # Second order
-p2 = plot(yformatter=_->"", leftmargin=-5Plots.mm)
+p2 = plot()
 # Mean
 plot!(p2, 1:Niters, fmean[:, 3], ribbon=fvar[:, 3], line=(colors[1], lw), label="2-SPSA")
 plot!(p2, 1:Niters, fmean[:, 4], ribbon=fvar[:, 4], line=(colors[2], lw), label="2-CSPSA")
@@ -97,7 +97,7 @@ plot!(p2, 1:Niters, fmedian[:, 3], line=(colors[1], lw, styles[2]), label=false)
 plot!(p2, 1:Niters, fmedian[:, 4], line=(colors[2], lw, styles[2]), label=false)
 
 # Natural gradient
-p3 = plot(yformatter=_->"", leftmargin=-5Plots.mm)
+p3 = plot()
 # Mean
 plot!(p3, 1:Niters, fmean[:, 5], ribbon=fvar[:, 5], line=(colors[1], lw), label="QN-SPSA")
 plot!(p3, 1:Niters, fmean[:, 6], ribbon=fvar[:, 6], line=(colors[2], lw), label="QN-CSPSA")
@@ -106,7 +106,7 @@ plot!(p3, 1:Niters, fmedian[:, 5], line=(colors[1], lw, styles[2]), label=false)
 plot!(p3, 1:Niters, fmedian[:, 6], line=(colors[2], lw, styles[2]), label=false)
 
 # Natural gradient - scalar
-p4 = plot(yformatter=_->"", leftmargin=-5Plots.mm)
+p4 = plot()
 # Mean
 plot!(p4, 1:Niters, fmean[:, 7], ribbon=fvar[:, 7], line=(colors[1], lw), label="QN-SPSA scalar")
 plot!(p4, 1:Niters, fmean[:, 8], ribbon=fvar[:, 8], line=(colors[2], lw), label="QN-CSPSA scalar")
@@ -116,18 +116,21 @@ plot!(p4, 1:Niters, fmedian[:, 8], line=(colors[2], lw, styles[2]), label=false)
 
 # Combine subplots
 p = plot(p1, p2, p3, p4,
-         size = (1600, 400),
-         link = :y,
+         size = (1200, 260),
          yscale = :log10,
+         grid = true,
          # ylims = extrema([fmean; fmedian]),
          framestyle = :box,
          xlim = (0, Niters),
+         bottommargin=7Plots.mm,
          layout = (1, 4),
-         thickness_scaling = 2,
-         xlabel = "Number of iterations",
+         thickness_scaling=1.1,
+         xlabel = "Iterations",
+         fontfamily = "serif-roman",
          )
 
 # display(plot(p))
 
 # Save plot as PDF
+# savefig("figname.pdf")
 savefig("$(Nvars)vars-$(Nruns)runs-$(Niters)iters_$(Nmeasures)measures.pdf")
