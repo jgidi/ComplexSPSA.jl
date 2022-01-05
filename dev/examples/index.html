@@ -251,7 +251,7 @@ display(p)
 using ComplexSPSA
 
 Nvars = 10
-Nruns = 1000
+Nruns = 100
 Niters = 500
 Nmeasures = 2^13 #10^3
 
@@ -327,7 +327,7 @@ styles =[:line, :dot]
 lw = 2
 
 # First order
-p1 = plot(ylabel = &quot;Infidelity&quot;, leftmargin=-5Plots.mm)
+p1 = plot(ylabel = &quot;Infidelity&quot;, leftmargin=6Plots.mm)
 # Mean
 plot!(p1, 1:Niters, fmean[:, 1], ribbon=fvar[:, 1], line=(colors[1], lw), label=&quot;SPSA&quot;)
 plot!(p1, 1:Niters, fmean[:, 2], ribbon=fvar[:, 2], line=(colors[2], lw), label=&quot;CSPSA&quot;)
@@ -336,7 +336,7 @@ plot!(p1, 1:Niters, fmedian[:, 1], line=(colors[1], lw, styles[2]), label=false)
 plot!(p1, 1:Niters, fmedian[:, 2], line=(colors[2], lw, styles[2]), label=false)
 
 # Second order
-p2 = plot(yformatter=_-&gt;&quot;&quot;, leftmargin=-5Plots.mm)
+p2 = plot()
 # Mean
 plot!(p2, 1:Niters, fmean[:, 3], ribbon=fvar[:, 3], line=(colors[1], lw), label=&quot;2-SPSA&quot;)
 plot!(p2, 1:Niters, fmean[:, 4], ribbon=fvar[:, 4], line=(colors[2], lw), label=&quot;2-CSPSA&quot;)
@@ -345,7 +345,7 @@ plot!(p2, 1:Niters, fmedian[:, 3], line=(colors[1], lw, styles[2]), label=false)
 plot!(p2, 1:Niters, fmedian[:, 4], line=(colors[2], lw, styles[2]), label=false)
 
 # Natural gradient
-p3 = plot(yformatter=_-&gt;&quot;&quot;, leftmargin=-5Plots.mm)
+p3 = plot()
 # Mean
 plot!(p3, 1:Niters, fmean[:, 5], ribbon=fvar[:, 5], line=(colors[1], lw), label=&quot;QN-SPSA&quot;)
 plot!(p3, 1:Niters, fmean[:, 6], ribbon=fvar[:, 6], line=(colors[2], lw), label=&quot;QN-CSPSA&quot;)
@@ -354,7 +354,7 @@ plot!(p3, 1:Niters, fmedian[:, 5], line=(colors[1], lw, styles[2]), label=false)
 plot!(p3, 1:Niters, fmedian[:, 6], line=(colors[2], lw, styles[2]), label=false)
 
 # Natural gradient - scalar
-p4 = plot(yformatter=_-&gt;&quot;&quot;, leftmargin=-5Plots.mm)
+p4 = plot()
 # Mean
 plot!(p4, 1:Niters, fmean[:, 7], ribbon=fvar[:, 7], line=(colors[1], lw), label=&quot;QN-SPSA scalar&quot;)
 plot!(p4, 1:Niters, fmean[:, 8], ribbon=fvar[:, 8], line=(colors[2], lw), label=&quot;QN-CSPSA scalar&quot;)
@@ -364,19 +364,22 @@ plot!(p4, 1:Niters, fmedian[:, 8], line=(colors[2], lw, styles[2]), label=false)
 
 # Combine subplots
 p = plot(p1, p2, p3, p4,
-         size = (1600, 400),
-         link = :y,
+         size = (1200, 260),
          yscale = :log10,
+         grid = true,
          # ylims = extrema([fmean; fmedian]),
          framestyle = :box,
          xlim = (0, Niters),
+         bottommargin=7Plots.mm,
          layout = (1, 4),
-         thickness_scaling = 2,
-         xlabel = &quot;Number of iterations&quot;,
+         thickness_scaling=1.1,
+         xlabel = &quot;Iterations&quot;,
+         fontfamily = &quot;serif-roman&quot;,
          )
 
 # display(plot(p))
 
 # Save plot as PDF
+# savefig(&quot;figname.pdf&quot;)
 savefig(&quot;$(Nvars)vars-$(Nruns)runs-$(Niters)iters_$(Nmeasures)measures.pdf&quot;)
-</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../optimizers/">« Optimizers</a><a class="docs-footer-nextpage" href="../qiskit/intro/">Introduction »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.6 on <span class="colophon-date" title="Tuesday 30 November 2021 04:19">Tuesday 30 November 2021</span>. Using Julia version 1.6.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../optimizers/">« Optimizers</a><a class="docs-footer-nextpage" href="../qiskit/intro/">Introduction »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.6 on <span class="colophon-date" title="Wednesday 5 January 2022 20:17">Wednesday 5 January 2022</span>. Using Julia version 1.6.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
