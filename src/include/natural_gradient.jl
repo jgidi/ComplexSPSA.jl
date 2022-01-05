@@ -110,7 +110,7 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
         @. z += sign * ak * g
 
         # Define Gradient
-        @. gradr = ak * g
+        @. gradr = sign * ak * g
 
         zacc[:, iter] = z
         gacc[:, iter] = grad
@@ -224,7 +224,7 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
         @. z += sign * ak * g
 
         # Define Gradient
-        @. grad = ak * g
+        @. grad = sign * ak * g
 
         zacc[:, iter] = z
         gacc[:, iter] = grad
@@ -335,7 +335,7 @@ function CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 2
         @. z += sign * ak * g
 
         # Define Gradient
-        @. grad = ak * g
+        @. grad = sign * ak * g
 
         zacc[:, iter] = z
         gacc[:, iter] = grad
@@ -388,6 +388,7 @@ function SPSA_QN_scalar_on_complex(f::Function, metric::Function, z₀::Vector, 
     Nz = length(z)
 
     grad = zeros(ComplexF64, size(z₀))
+    gradr = reinterpret(Float64, grad)
 
     # Set of possible perturbations
     samples = Float64.((-1, 1))
@@ -449,7 +450,7 @@ function SPSA_QN_scalar_on_complex(f::Function, metric::Function, z₀::Vector, 
         @. z += sign * ak * g
 
         # Define Gradient
-        @. gradr = ak * g
+        @. gradr = sign * ak * g
 
         zacc[:, iter] = z
         gacc[:, iter] = grad

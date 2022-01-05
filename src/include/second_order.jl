@@ -103,7 +103,7 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
         @. z += sign * ak * g
 
         # Define Gradient
-        @. gradr = ak * g
+        @. gradr = sign * ak * g
 
         zacc[:, iter] = z
         gacc[:, iter] = grad
@@ -211,7 +211,7 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
         @. z += sign * ak * g
 
         # Define Gradient
-        @. grad = ak * g
+        @. grad = sign * ak * g
 
         zacc[:, iter] = z
         gacc[:, iter] = grad
