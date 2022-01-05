@@ -174,6 +174,9 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
     # Accumulator
     zacc = Array{Complex{Float64}}(undef, Nz, Niters)
 
+    # Gradient Accumulator
+    gacc = Array{Complex{Float64}}(undef, Nz, Niters)
+
     # Initial Hessian
     Hsmooth = LinearAlgebra.I(Nz)
     for iter in 1:Niters
@@ -272,6 +275,9 @@ function CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 2
     z = z₀[:] .+ 0im
     Nz = length(z)
 
+    grad = zeros(ComplexF64, size(z₀))
+    gradr = reinterpret(Float64, grad)
+
     # Set of possible perturbations
     samples = Complex{Float64}.((-1, 1, -im, im))
 
@@ -282,6 +288,9 @@ function CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 2
 
     # Accumulator
     zacc = Array{Complex{Float64}}(undef, Nz, Niters)
+
+    # Gradient Accumulator
+    gacc = Array{Complex{Float64}}(undef, Nz, Niters)
 
     # Initial Hessian
     Hsmooth = 1.0
@@ -325,10 +334,13 @@ function CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 2
         # Update variable in-place
         @. z += sign * ak * g
 
+        # Define Gradient
+        @. gradr = ak * g
+
         zacc[:, iter] = z
     end
 
-    return zacc
+    return zacc, grad
 end
 
 """
@@ -374,6 +386,8 @@ function SPSA_QN_scalar_on_complex(f::Function, metric::Function, z₀::Vector, 
     zr = reinterpret(Float64, z)
     Nz = length(z)
 
+    grad = zeros(ComplexF64, size(z₀))
+
     # Set of possible perturbations
     samples = Float64.((-1, 1))
 
@@ -387,6 +401,9 @@ function SPSA_QN_scalar_on_complex(f::Function, metric::Function, z₀::Vector, 
 
     # Accumulator
     zacc = Array{Complex{Float64}}(undef, Nz, Niters)
+
+    # Gradient Accumulator
+    gacc = Array{Complex{Float64}}(undef, Nz, Niters)
 
     # Initial Hessian
     Hsmooth = 1.0
@@ -431,7 +448,8 @@ function SPSA_QN_scalar_on_complex(f::Function, metric::Function, z₀::Vector, 
         @. z += sign * ak * g
 
         zacc[:, iter] = z
+        gacc[:, iter] = g
     end
 
-    return zacc
+    return zacc, gacc
 end
