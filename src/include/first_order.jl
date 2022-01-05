@@ -114,7 +114,7 @@ function CSPSA(f::Function, z₀::Vector, Niters = 200;
     z = z₀[:] .+ 0im
     Nvars = length(z)
 
-    g = zeros(ComplexF64, size(z_0))
+    g = zeros(ComplexF64, size(z₀))
 
     # Set of possible perturbations
     samples = Complex{Float64}.((-1, 1, -im, im))
