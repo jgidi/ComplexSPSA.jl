@@ -29,6 +29,9 @@ function SPSA_on_complex(f::Function, z₀::Vector, Niters = 200;
     z = z₀[:] .+ 0im
     zr = reinterpret(Float64, z)        # View of z as pairs of reals
 
+    g = zeros(ComplexF64, size(z₀))
+    gr = reinterpret(Float64, g)
+
     Nvars = length(z₀)
 
     # Set of possible perturbations
@@ -49,6 +52,9 @@ function SPSA_on_complex(f::Function, z₀::Vector, Niters = 200;
     # Accumulator
     zacc = Array{Complex{Float64}}(undef, Nvars, Niters)
 
+    # Gradient Accumulator
+    gacc = Array{Complex{Float64}}(undef, Nvars, Niters)
+
     for iter in 1:Niters
         ak = a / (iter + A)^s
         bk = b / iter^t
@@ -65,11 +71,15 @@ function SPSA_on_complex(f::Function, z₀::Vector, Niters = 200;
         # Update variable in-place
         @. zr += 0.5sign * ak * Δ * df / bk
 
+        # Define Gradient
+        @. gr = 0.5sign * ak * Δ * df / bk
+
         # Copy arguments as complex to the accumulator
         zacc[:, iter] = z
+        gacc[:, iter] = g
     end
 
-    return zacc
+    return zacc, gacc
 end
 
 """
@@ -104,6 +114,8 @@ function CSPSA(f::Function, z₀::Vector, Niters = 200;
     z = z₀[:] .+ 0im
     Nvars = length(z)
 
+    g = zeros(ComplexF64, size(z_0))
+
     # Set of possible perturbations
     samples = Complex{Float64}.((-1, 1, -im, im))
 
@@ -115,6 +127,9 @@ function CSPSA(f::Function, z₀::Vector, Niters = 200;
 
     # Accumulator
     zacc = Array{Complex{Float64}}(undef, Nvars, Niters)
+
+    # Gradient Accumulator
+    gacc = Array{Complex{Float64}}(undef, Nvars, Niters)
 
     for iter in 1:Niters
         ak = a / (iter + A)^s
@@ -128,9 +143,13 @@ function CSPSA(f::Function, z₀::Vector, Niters = 200;
         # Update variable in-place
         @. z += 0.5sign * ak * Δ * df / bk
 
+        # Define Gradient
+        @. g = 0.5sign * ak * Δ * df / bk
+
         # Copy arguments as complex to the accumulator
         zacc[:, iter] = z
+        gacc[:, iter] = g
     end
 
-    return zacc
+    return zacc, gacc
 end
