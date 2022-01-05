@@ -40,6 +40,10 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
 
     z = z₀[:] .+ 0im
     zr = reinterpret(Float64, z)        # View of z as pairs of reals
+
+    grad = zeros(ComplexF64, size(z₀))
+    gradr = reinterpret(Float64, grad)
+
     Nz = length(z)
 
     # Set of possible perturbations
@@ -55,6 +59,9 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
 
     # Accumulator
     zacc = Array{Complex{Float64}}(undef, Nz, Niters)
+
+    # Gradient Accumulator
+    gacc = Array{Complex{Float64}}(undef, Nvars, Niters)
 
     # Initial Hessian
     Hsmooth = LinearAlgebra.I(2Nz)
@@ -102,10 +109,14 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
         # Update variable in-place
         @. z += sign * ak * g
 
+        # Define Gradient
+        @. gradr = ak * g
+
         zacc[:, iter] = z
+        gacc[:, iter] = grad
     end
 
-    return zacc
+    return zacc, grad
 end
 
 """
@@ -149,6 +160,8 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
 
     z = z₀[:] .+ 0im
     Nz = length(z)
+
+    grad = zeros(ComplexF64, size(z_0))
 
     # Set of possible perturbations
     samples = Complex{Float64}.((-1, 1, -im, im))
@@ -207,10 +220,14 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
         # Update variable in-place
         @. z += sign * ak * g
 
+         # Define Gradient
+         @. grad = ak * g
+
         zacc[:, iter] = z
+        gacc[:, iter] = g
     end
 
-    return zacc
+    return zacc, gacc
 end
 
 """
