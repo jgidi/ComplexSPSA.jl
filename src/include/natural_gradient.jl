@@ -61,7 +61,7 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
     zacc = Array{Complex{Float64}}(undef, Nz, Niters)
 
     # Gradient Accumulator
-    gacc = Array{Complex{Float64}}(undef, Nvars, Niters)
+    gacc = Array{Complex{Float64}}(undef, Nz, Niters)
 
     # Initial Hessian
     Hsmooth = LinearAlgebra.I(2Nz)

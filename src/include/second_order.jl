@@ -54,7 +54,7 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
     zacc = Array{Complex{Float64}}(undef, Nz, Niters)
 
     # Gradient Accumulator
-    gacc = Array{Complex{Float64}}(undef, Nvars, Niters)
+    gacc = Array{Complex{Float64}}(undef, Nz, Niters)
 
     # Initial Hessian
     Hsmooth = LinearAlgebra.I(2Nz)
