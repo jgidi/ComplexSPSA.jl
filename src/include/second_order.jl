@@ -35,7 +35,6 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
     zr = reinterpret(Float64, z)        # View of z as pairs of reals
 
     grad = zeros(ComplexF64, size(z₀))
-    gradr = reinterpret(Float64, grad)
 
     Nz = length(z)
 
@@ -103,7 +102,7 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
         @. z += sign * ak * g
 
         # Define Gradient
-        @. gradr = sign * ak * g
+        @. grad = sign * ak * g
 
         zacc[:, iter] = z
         gacc[:, iter] = grad
