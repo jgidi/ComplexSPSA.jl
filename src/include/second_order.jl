@@ -214,7 +214,7 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
         @. grad = ak * g
 
         zacc[:, iter] = z
-        gacc[:, iter] = g
+        gacc[:, iter] = grad
     end
 
     return zacc, gacc
