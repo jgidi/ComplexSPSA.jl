@@ -165,9 +165,9 @@ show()
 using ComplexSPSA
 
 Nvars = 2
-Nruns = 10^3
-Niters = 2*10^2
-Nmeasures = 10^3
+Nruns = 10^4
+Niters = 10^2
+Nmeasures = 10^4
 
 # Generate a random Haar ket in dimension d
 function rand_qudit(T::DataType, d...)
@@ -194,19 +194,23 @@ metric(z1, z2) = -0.5fidelity(z1, z2)
 # Experimental function to simulate
 f(z) = simulate_experiment(infidelity(z), Nmeasures)
 
+# Post-iteration normalization
+postprocess(z) = z / sqrt(sum(abs2, z))
+
+
 labels = [&quot;SPSA&quot;, &quot;CSPSA&quot;, &quot;SPSA2&quot;, &quot;CSPSA2&quot;, &quot;SPSA_QN&quot;, &quot;CSPSA_QN&quot;, &quot;CSPSA_QN_scalar&quot;]
 
 zacc = ones(ComplexF64, Nvars, Niters, Nruns, length(labels))
 @showprogress for run in 1:Nruns
     guess = rand(ComplexF64, Nvars)
     
-    zacc[:, :, run, 1] = SPSA_on_complex(f, guess, Niters)
-    zacc[:, :, run, 2] = CSPSA(f, guess, Niters)
-    zacc[:, :, run, 3] = SPSA2_on_complex(f, guess,Niters)
-    zacc[:, :, run, 4] = CSPSA2(f, guess, Niters)
-    zacc[:, :, run, 5] = SPSA_QN_on_complex(f, metric, guess, Niters)
-    zacc[:, :, run, 6] = CSPSA_QN(f, metric, guess, Niters)
-    zacc[:, :, run, 7] = CSPSA_QN_scalar(f, metric, guess, Niters)
+    zacc[:, :, run, 1] = SPSA_on_complex(f, guess, Niters, postprocess=postprocess)
+    zacc[:, :, run, 2] = CSPSA(f, guess, Niters, postprocess=postprocess)
+    zacc[:, :, run, 3] = SPSA2_on_complex(f, guess,Niters, postprocess=postprocess)
+    zacc[:, :, run, 4] = CSPSA2(f, guess, Niters, postprocess=postprocess)
+    zacc[:, :, run, 5] = SPSA_QN_on_complex(f, metric, guess, Niters, postprocess=postprocess)
+    zacc[:, :, run, 6] = CSPSA_QN(f, metric, guess, Niters, postprocess=postprocess)
+    zacc[:, :, run, 7] = CSPSA_QN_scalar(f, metric, guess, Niters, postprocess=postprocess)
 end
 
 # Calculate statistics
@@ -227,6 +231,7 @@ using Plots
 
 # Make plot
 p = plot(yscale = :log10,                  # Log scale on the y-axis
+         xscale = :log10,
          xlabel = &quot;Number of iterations&quot;,  # 
          ylabel = &quot;Infidelity&quot;,            #
          legend = :outertopright,
@@ -382,4 +387,4 @@ p = plot(p1, p2, p3, p4,
 # Save plot as PDF
 # savefig(&quot;figname.pdf&quot;)
 savefig(&quot;$(Nvars)vars-$(Nruns)runs-$(Niters)iters_$(Nmeasures)measures.pdf&quot;)
-</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../optimizers/">« Optimizers</a><a class="docs-footer-nextpage" href="../qiskit/intro/">Introduction »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.6 on <span class="colophon-date" title="Wednesday 5 January 2022 20:17">Wednesday 5 January 2022</span>. Using Julia version 1.6.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../optimizers/">« Optimizers</a><a class="docs-footer-nextpage" href="../qiskit/intro/">Introduction »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.6 on <span class="colophon-date" title="Thursday 13 January 2022 04:56">Thursday 13 January 2022</span>. Using Julia version 1.6.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
