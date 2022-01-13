@@ -67,7 +67,7 @@ function SPSA_on_complex(f::Function, z₀::Vector, Niters = 200;
         @. zr += 0.5sign * ak * Δ * df / bk
 
         # Apply postprocessing to z
-        z = postprocess(z)
+        z .= postprocess(z)
 
         # Copy arguments as complex to the accumulator
         zacc[:, iter] = z
@@ -134,7 +134,7 @@ function CSPSA(f::Function, z₀::Vector, Niters = 200;
         @. z += 0.5sign * ak * Δ * df / bk
 
         # Apply postprocessing to z
-        z = postprocess(z)
+        z .= postprocess(z)
 
         # Copy arguments as complex to the accumulator
         zacc[:, iter] = z

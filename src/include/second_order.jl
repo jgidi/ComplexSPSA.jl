@@ -97,7 +97,7 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
         @. z += sign * ak * g
 
         # Apply postprocessing to z
-        z = postprocess(z)
+        z .= postprocess(z)
 
         zacc[:, iter] = z
     end
@@ -200,7 +200,7 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
         @. z += sign * ak * g
 
         # Apply postprocessing to z
-        z = postprocess(z)
+        z .= postprocess(z)
 
         zacc[:, iter] = z
     end
