@@ -24,6 +24,7 @@ function SPSA_on_complex(f::Function, z₀::Vector, Niters = 200;
                          Ncalibrate = 0,
                          a = gains[:a], b = gains[:b],
                          A = gains[:A], s = gains[:s], t = gains[:t],
+                         postprocess = x->x,
                          )
 
     z = z₀[:] .+ 0im
@@ -65,6 +66,9 @@ function SPSA_on_complex(f::Function, z₀::Vector, Niters = 200;
         # Update variable in-place
         @. zr += 0.5sign * ak * Δ * df / bk
 
+        # Apply postprocessing to z
+        z .= postprocess(z)
+
         # Copy arguments as complex to the accumulator
         zacc[:, iter] = z
     end
@@ -99,6 +103,7 @@ function CSPSA(f::Function, z₀::Vector, Niters = 200;
                Ncalibrate = 0,
                a = gains[:a], b = gains[:b],
                A = gains[:A], s = gains[:s], t = gains[:t],
+               postprocess = x->x,
                )
 
     z = z₀[:] .+ 0im
@@ -127,6 +132,9 @@ function CSPSA(f::Function, z₀::Vector, Niters = 200;
 
         # Update variable in-place
         @. z += 0.5sign * ak * Δ * df / bk
+
+        # Apply postprocessing to z
+        z .= postprocess(z)
 
         # Copy arguments as complex to the accumulator
         zacc[:, iter] = z
