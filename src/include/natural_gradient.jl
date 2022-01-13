@@ -36,6 +36,7 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
                             hessian_delay = 0,
                             a = gains[:a], b = gains[:b],
                             A = gains[:A], s = gains[:s], t = gains[:t],
+                            postprocess = x->x,
                             )
 
     z = z₀[:] .+ 0im
@@ -102,6 +103,9 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
         # Update variable in-place
         @. z += sign * ak * g
 
+        # Apply postprocessing to z
+        z = postprocess(z)
+
         zacc[:, iter] = z
     end
 
@@ -145,6 +149,7 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
                   hessian_delay = 0,
                   a = gains[:a], b = gains[:b],
                   A = gains[:A], s = gains[:s], t = gains[:t],
+                  postprocess = x->x,
                   )
 
     z = z₀[:] .+ 0im
@@ -207,6 +212,9 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
         # Update variable in-place
         @. z += sign * ak * g
 
+        # Apply postprocessing to z
+        z = postprocess(z)
+
         zacc[:, iter] = z
     end
 
@@ -250,6 +258,7 @@ function CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 2
                          hessian_delay = 0,
                          a = gains[:a], b = gains[:b],
                          A = gains[:A], s = gains[:s], t = gains[:t],
+                         postprocess = x->x,
                          )
 
     z = z₀[:] .+ 0im
@@ -308,6 +317,9 @@ function CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 2
         # Update variable in-place
         @. z += sign * ak * g
 
+        # Apply postprocessing to z
+        z = postprocess(z)
+
         zacc[:, iter] = z
     end
 
@@ -351,6 +363,7 @@ function SPSA_QN_scalar_on_complex(f::Function, metric::Function, z₀::Vector, 
                                    hessian_delay = 0,
                                    a = gains[:a], b = gains[:b],
                                    A = gains[:A], s = gains[:s], t = gains[:t],
+                                   postprocess = x->x,
                                    )
 
     z = z₀[:] .+ 0im
@@ -412,6 +425,9 @@ function SPSA_QN_scalar_on_complex(f::Function, metric::Function, z₀::Vector, 
 
         # Update variable in-place
         @. z += sign * ak * g
+
+        # Apply postprocessing to z
+        z = postprocess(z)
 
         zacc[:, iter] = z
     end

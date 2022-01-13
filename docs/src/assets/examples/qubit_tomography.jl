@@ -2,9 +2,9 @@ using ProgressMeter, LinearAlgebra, Statistics
 using ComplexSPSA
 
 Nvars = 2
-Nruns = 10^3
-Niters = 2*10^2
-Nmeasures = 10^3
+Nruns = 10^4
+Niters = 10^2
+Nmeasures = 10^4
 
 # Generate a random Haar ket in dimension d
 function rand_qudit(T::DataType, d...)
@@ -33,9 +33,20 @@ f(z) = simulate_experiment(infidelity(z), Nmeasures)
 
 labels = ["SPSA", "CSPSA", "SPSA2", "CSPSA2", "SPSA_QN", "CSPSA_QN", "CSPSA_QN_scalar"]
 
+# # Set gains
+# for (key, val) in zip(
+# [:a, :b, :A, :s, :t],
+# (3.0, 0.1, 0.0, 1.0, 0.166)
+# )
+
+#     ComplexSPSA.gains[key] = val
+# end
+ComplexSPSA.gains[:A] = 0.0
+
+
 zacc = ones(ComplexF64, Nvars, Niters, Nruns, length(labels))
+guess = rand(ComplexF64, Nvars)
 @showprogress for run in 1:Nruns
-    guess = rand(ComplexF64, Nvars)
     
     zacc[:, :, run, 1] = SPSA_on_complex(f, guess, Niters)
     zacc[:, :, run, 2] = CSPSA(f, guess, Niters)
@@ -64,6 +75,7 @@ using Plots
 
 # Make plot
 p = plot(yscale = :log10,                  # Log scale on the y-axis
+         xscale = :log10,
          xlabel = "Number of iterations",  # 
          ylabel = "Infidelity",            #
          legend = :outertopright,

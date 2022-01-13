@@ -29,6 +29,7 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
                           hessian_delay = 0,
                           a = gains[:a], b = gains[:b],
                           A = gains[:A], s = gains[:s], t = gains[:t],
+                          postprocess = x->x,
                           )
 
     z = z₀[:] .+ 0im
@@ -95,6 +96,9 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
         # Update variable in-place
         @. z += sign * ak * g
 
+        # Apply postprocessing to z
+        z = postprocess(z)
+
         zacc[:, iter] = z
     end
 
@@ -132,6 +136,7 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
                 hessian_delay = 0,
                 a = gains[:a], b = gains[:b],
                 A = gains[:A], s = gains[:s], t = gains[:t],
+                postprocess = x->x,
                 )
 
     z = z₀[:] .+ 0im
@@ -193,6 +198,9 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
 
         # Update variable in-place
         @. z += sign * ak * g
+
+        # Apply postprocessing to z
+        z = postprocess(z)
 
         zacc[:, iter] = z
     end
