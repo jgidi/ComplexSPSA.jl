@@ -31,30 +31,23 @@ metric(z1, z2) = -0.5fidelity(z1, z2)
 # Experimental function to simulate
 f(z) = simulate_experiment(infidelity(z), Nmeasures)
 
+# Post-iteration normalization
+postprocess(z) = z / sqrt(sum(abs2, z))
+
+
 labels = ["SPSA", "CSPSA", "SPSA2", "CSPSA2", "SPSA_QN", "CSPSA_QN", "CSPSA_QN_scalar"]
 
-# # Set gains
-# for (key, val) in zip(
-# [:a, :b, :A, :s, :t],
-# (3.0, 0.1, 0.0, 1.0, 0.166)
-# )
-
-#     ComplexSPSA.gains[key] = val
-# end
-ComplexSPSA.gains[:A] = 0.0
-
-
 zacc = ones(ComplexF64, Nvars, Niters, Nruns, length(labels))
-guess = rand(ComplexF64, Nvars)
 @showprogress for run in 1:Nruns
+    guess = rand(ComplexF64, Nvars)
     
-    zacc[:, :, run, 1] = SPSA_on_complex(f, guess, Niters)
-    zacc[:, :, run, 2] = CSPSA(f, guess, Niters)
-    zacc[:, :, run, 3] = SPSA2_on_complex(f, guess,Niters)
-    zacc[:, :, run, 4] = CSPSA2(f, guess, Niters)
-    zacc[:, :, run, 5] = SPSA_QN_on_complex(f, metric, guess, Niters)
-    zacc[:, :, run, 6] = CSPSA_QN(f, metric, guess, Niters)
-    zacc[:, :, run, 7] = CSPSA_QN_scalar(f, metric, guess, Niters)
+    zacc[:, :, run, 1] = SPSA_on_complex(f, guess, Niters, postprocess=postprocess)
+    zacc[:, :, run, 2] = CSPSA(f, guess, Niters, postprocess=postprocess)
+    zacc[:, :, run, 3] = SPSA2_on_complex(f, guess,Niters, postprocess=postprocess)
+    zacc[:, :, run, 4] = CSPSA2(f, guess, Niters, postprocess=postprocess)
+    zacc[:, :, run, 5] = SPSA_QN_on_complex(f, metric, guess, Niters, postprocess=postprocess)
+    zacc[:, :, run, 6] = CSPSA_QN(f, metric, guess, Niters, postprocess=postprocess)
+    zacc[:, :, run, 7] = CSPSA_QN_scalar(f, metric, guess, Niters, postprocess=postprocess)
 end
 
 # Calculate statistics
