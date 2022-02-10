@@ -74,11 +74,13 @@ with `Nmeasures` tries and success rate `refvalue`, and normalizing the result a
 Notes
 =====
 * If the number of measurements, `Nmeasures`, is infinite, the reference value, `refvalue`, is returned exactly.
+* It is assumed that `0.0 <= refvalue <= 1.0`. If not, `refvalue` will be taken as its closest boundary.
 """
 function simulate_experiment(refvalue, Nmeasures = Inf)
     if isinf(Nmeasures)
         sample = refvalue
     else
+        refvalue = min(max(refvalue, one(refvalue)), zero(refvalue))
         distrib = Binomial(Nmeasures, refvalue)
         sample = rand(distrib)/Nmeasures
     end
