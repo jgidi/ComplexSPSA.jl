@@ -80,7 +80,7 @@ function simulate_experiment(refvalue, Nmeasures = Inf)
     if isinf(Nmeasures)
         sample = refvalue
     else
-        refvalue = min(max(refvalue, one(refvalue)), zero(refvalue))
+        refvalue = min(max(refvalue, zero(refvalue)), one(refvalue))
         distrib = Binomial(Nmeasures, refvalue)
         sample = rand(distrib)/Nmeasures
     end
