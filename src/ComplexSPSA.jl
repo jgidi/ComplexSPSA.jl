@@ -3,6 +3,8 @@ module ComplexSPSA
 # Exported
 # Qiskit wrapper submodule
 export Qiskit
+export PaperPlot
+
 # Optimzers
 export SPSA_on_complex, CSPSA                     # First order
 export SPSA2_on_complex, CSPSA2                   # Second order
@@ -24,5 +26,6 @@ include("include/tools.jl")
 
 # Qiskit wrapper submodule
 include("include/qiskit/Qiskit.jl")
+include("include/paperplot/PaperPlot.jl")
 
 end # module
