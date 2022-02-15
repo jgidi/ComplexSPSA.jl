@@ -10,6 +10,7 @@ squeeze(A) = reshape(A, Tuple(i for i in size(A) if i != 1))
 function paperplot(
     fz,
     measures_per_it,
+    dispersion = Statistics.var,
     labels   = ["SPSA", "CSPSA", "2-SPSA", "2-CSPSA", "QN-SPSA", "QN-CSPSA"],
     lines    = Dict(:real => (2, "blue"), :comp => (2, "red")),
     ylabel   = "Infidelity",
@@ -19,7 +20,7 @@ function paperplot(
 
     # Get statistics
     fmean = [mean(fz_opt, dims=2) |> squeeze for fz_opt in fz]
-    fvar  = [ var(fz_opt, dims=2) |> squeeze for fz_opt in fz]
+    fvar  = [dispersion(fz_opt, dims=2) |> squeeze for fz_opt in fz]
 
     fmedian = [median(fz_opt, dims=2) |> squeeze for fz_opt in fz]
     iqr     = [(get_quantile(fz_opt, 0.25, dims=2) |> squeeze,
