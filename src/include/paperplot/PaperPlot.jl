@@ -62,7 +62,7 @@ function paperplot(
     plot!.(plots[4:6], bottom_margin=5Plots.mm)
 
     logscale_kw = Dict()
-    if all(hcat(fmean...) .> 0)
+    if all(vcat(fmean...) .> 0)
         logscale_kw[:yticks] = 10.0 .^ (-10:0)
         logscale_kw[:yscale] = :log10
     end
