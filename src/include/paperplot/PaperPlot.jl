@@ -75,6 +75,7 @@ function paperplot(
                          legend = :false,
                          link = :both,
                          grid = true,
+                         framestyle = :box,
                          fontfamily = "serif-roman",
                          size = (1200, 500),
                          ;
