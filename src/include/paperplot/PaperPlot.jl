@@ -25,26 +25,25 @@ function paperplot(
     iqr     = [(get_quantile(fz_opt, 0.25, dims=2) |> squeeze,
                 get_quantile(fz_opt, 0.75, dims=2) |> squeeze) for fz_opt in fz]
 
-
     # Number of iterations per optimizer
     Niters = [ length(f) for f in fmean ]
     xaxes = Base.OneTo.(Niters) .* measures_per_it
 
     # Plot mean and var
     plots = [plot() for i in 1:6]
-    plot!(plots[1], ylabel=ylabel*" (mean)", leftmargin = 5Plots.mm)
-    plot!.(plots[2:3], yformatter=_->"", leftmargin = -5Plots.mm)
+    plot!(plots[1], ylabel=ylabel*" (mean)")
+    plot!.(plots[2:3], yformatter=_->"")
     for i in 1:3
         plot!(plots[i], xaxes[2i-1], fmean[2i-1], ribbon=fvar[2i-1], line=lines[:real], label=labels[2i-1])
         plot!(plots[i], xaxes[ 2i ], fmean[ 2i ], ribbon=fvar[ 2i ], line=lines[:comp], label=labels[ 2i ])
     end
 
     # Plot median and iqr
-    plot!(plots[4], ylabel=ylabel*" (median)", leftmargin = 5Plots.mm)
-    plot!.(plots[5:6], yformatter=_->"")# , leftmargin = -5Plots.mm)
+    plot!(plots[4], ylabel=ylabel*" (median)")
+    plot!.(plots[5:6], yformatter=_->"")
     for i in 1:3
-        plot!(plots[i+3], xaxes[2i-1], fmedian[2i-1], ribbon=iqr[2i-1], line=lines[:real], label=labels[2i-1])
-        plot!(plots[i+3], xaxes[ 2i ], fmedian[ 2i ], ribbon=iqr[ 2i ], line=lines[:comp], label=labels[ 2i ])
+        plot!(plots[i+3], xaxes[2i-1], fmedian[2i-1], fillrange=iqr[2i-1], fillalpha=0.5, line=lines[:real], label=labels[2i-1])
+        plot!(plots[i+3], xaxes[ 2i ], fmedian[ 2i ], fillrange=iqr[ 2i ], fillalpha=0.5, line=lines[:comp], label=labels[ 2i ])
     end
 
     # Titles
@@ -57,21 +56,28 @@ function paperplot(
     plot!.(plots[4:6], xlabel=xlabel)
 
     # Margins
-    # plot!.(plots[1:3], bottom_margin=-3Plots.mm)
+    plot!.(plots[[1, 4]], left_margin=10Plots.mm)
+    plot!.(plots[[3, 6]], right_margin=5Plots.mm)
+    plot!.(plots[1:3], bottom_margin=-3Plots.mm)
     plot!.(plots[4:6], bottom_margin=5Plots.mm)
+
+    logscale_kw = Dict()
+    if all(hcat(fmean...) .> 0)
+        logscale_kw[:yticks] = 10.0 .^ (-10:0)
+        logscale_kw[:yscale] = :log10
+    end
 
     # Combine all plots
     plot_combined = plot(plots...,
                          xlim=(1, minimum(Niters .* measures_per_it)),
                          layout = (2, 3),
-                         yscale = :log10,
-                         yticks = 10.0 .^ (-6:0),
                          legend = :false,
                          link = :both,
                          grid = true,
                          fontfamily = "serif-roman",
                          size = (1200, 500),
                          ;
+                         logscale_kw...,
                          plotargs...
                          )
 
