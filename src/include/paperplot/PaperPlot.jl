@@ -58,6 +58,7 @@ function paperplot(
 
     # Margins
     plot!.(plots[[1, 4]], left_margin=10Plots.mm)
+    plot!.(plots[[2,3,5,6]], left_margin=-4Plots.mm)
     plot!.(plots[[3, 6]], right_margin=5Plots.mm)
     plot!.(plots[1:3], bottom_margin=-3Plots.mm)
     plot!.(plots[4:6], bottom_margin=5Plots.mm)
@@ -78,6 +79,7 @@ function paperplot(
                          framestyle = :box,
                          fontfamily = "serif-roman",
                          size = (1200, 500),
+                         thickness_scaling = 1.3,
                          ;
                          logscale_kw...,
                          plotargs...
