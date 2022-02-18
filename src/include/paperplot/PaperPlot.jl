@@ -78,6 +78,7 @@ function paperplot(
                          framestyle = :box,
                          fontfamily = "serif-roman",
                          size = (1200, 500),
+                         thickness_scaling = 1.3,
                          ;
                          logscale_kw...,
                          plotargs...
