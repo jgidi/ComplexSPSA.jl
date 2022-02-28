@@ -10,11 +10,12 @@ squeeze(A) = reshape(A, Tuple(i for i in size(A) if i != 1))
 function paperplot(
     fz,
     measures_per_it,
+    ;
     dispersion = Statistics.var,
     labels   = ["SPSA", "CSPSA", "2-SPSA", "2-CSPSA", "QN-SPSA", "QN-CSPSA"],
     lines    = Dict(:real => (2, "blue"), :comp => (2, "red")),
     ylabel   = "Infidelity",
-    xlabel   = "Measurements";
+    xlabel   = "Measurements",
     plotargs...
     )
 
