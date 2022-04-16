@@ -37,6 +37,7 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
                             a = gains[:a], b = gains[:b],
                             A = gains[:A], s = gains[:s], t = gains[:t],
                             postprocess = x->x,
+                            constant_rate = NaN,
                             )
 
     z = z₀[:] .+ 0im
@@ -100,6 +101,10 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
             ak = ak * a
         end
 
+        if !isnan(constant_rate)
+            ak = constant_rate
+        end
+
         # Update variable in-place
         @. z += sign * ak * g
 
@@ -150,6 +155,7 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
                   a = gains[:a], b = gains[:b],
                   A = gains[:A], s = gains[:s], t = gains[:t],
                   postprocess = x->x,
+                  constant_rate = NaN,
                   )
 
     z = z₀[:] .+ 0im
@@ -207,6 +213,10 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
             g .= ( H \ g )
         else
             ak = ak * a
+        end
+
+        if !isnan(constant_rate)
+            ak = constant_rate
         end
 
         # Update variable in-place
