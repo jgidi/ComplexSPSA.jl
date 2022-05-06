@@ -68,25 +68,25 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
         df = f(zp) - f(zm)
         @. gr = df / (2Δ1)
 
+        # Second order
+        # Hessian estimation as a forward difference of the gradient
+        @. zpr = zr + Δ1 + Δ2             # Perturb variables as reals
+        @. zmr = zr - Δ1 + Δ2
+
+        dfp = f(zp) - f(zm)
+        H = @. (dfp - df) / (2Δ1*Δ2')     # Estimate Hessian
+        H = (H + H')/2                    # Symmetrization
+
+        # Hessian conditioning
+
+        # Regularization
+        H = sqrt(H*H + 1e-3LinearAlgebra.I(2Nz))
+
+        # Smoothing
+        H = (iter*Hsmooth + H) / (iter+1)
+        Hsmooth = H
+
         if iter > hessian_delay
-            # Second order
-            # Hessian estimation as a forward difference of the gradient
-            @. zpr = zr + Δ1 + Δ2             # Perturb variables as reals
-            @. zmr = zr - Δ1 + Δ2
-
-            dfp = f(zp) - f(zm)
-            H = @. (dfp - df) / (2Δ1*Δ2')     # Estimate Hessian
-            H = (H + H')/2                    # Symmetrization
-
-            # Hessian conditioning
-
-            # Regularization
-            H = sqrt(H*H + 1e-3LinearAlgebra.I(2Nz))
-
-            # Smoothing
-            H = (iter*Hsmooth + H) / (iter+1)
-            Hsmooth = H
-
             # Correct gradient with the Hessian
             gr .= ( H \ gr )
         else
@@ -171,25 +171,25 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
         df = f(zp) - f(zm)
         @. g = df / (2conj(Δ1))
 
+        # Second order
+        # Hessian estimation as a forward difference of the gradient
+        @. zp = z + Δ1 + Δ2             # Perturb variables as reals
+        @. zm = z - Δ1 + Δ2
+
+        dfp = f(zp) - f(zm)
+        H = @. (dfp - df) / (2Δ1*Δ2')     # Estimate Hessian
+        H = (H + H')/2                    # Symmetrization
+
+        # Hessian conditioning
+
+        # Regularization
+        H = sqrt(H*H + 1e-3LinearAlgebra.I(Nz))
+
+        # Smoothing
+        H = (iter*Hsmooth + H) / (iter+1)
+        Hsmooth = H
+
         if iter > hessian_delay
-            # Second order
-            # Hessian estimation as a forward difference of the gradient
-            @. zp = z + Δ1 + Δ2             # Perturb variables as reals
-            @. zm = z - Δ1 + Δ2
-
-            dfp = f(zp) - f(zm)
-            H = @. (dfp - df) / (2Δ1*Δ2')     # Estimate Hessian
-            H = (H + H')/2                    # Symmetrization
-
-            # Hessian conditioning
-
-            # Regularization
-            H = sqrt(H*H + 1e-3LinearAlgebra.I(Nz))
-
-            # Smoothing
-            H = (iter*Hsmooth + H) / (iter+1)
-            Hsmooth = H
-
             # Correct gradient with the Hessian
             g .= ( H \ g )
         else

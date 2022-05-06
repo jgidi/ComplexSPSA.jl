@@ -75,25 +75,25 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
         df = f(zp) - f(zm)
         @. gr = df / (2Δ1)
 
+        dF = metric(z, zp) - metric(z, zm)
+
+        # Second order
+        # Hessian estimation as a forward difference of the gradient
+        @. zpr = zr + Δ1 + Δ2
+        @. zmr = zr - Δ1 + Δ2
+
+        dFp = metric(z, zp) - metric(z, zm)
+        H = @. (dFp - dF) / (2Δ1*Δ2')     # Estimate Hessian
+        H = (H + H')/2                    # Symmetrization
+
+        # Regularization
+        H = sqrt(H*H + 1e-3LinearAlgebra.I(2Nz))
+
+        # Smoothing
+        H = (iter*Hsmooth + H) / (iter+1)
+        Hsmooth = H
+
         if iter > hessian_delay
-            dF = metric(z, zp) - metric(z, zm)
-
-            # Second order
-            # Hessian estimation as a forward difference of the gradient
-            @. zpr = zr + Δ1 + Δ2
-            @. zmr = zr - Δ1 + Δ2
-
-            dFp = metric(z, zp) - metric(z, zm)
-            H = @. (dFp - dF) / (2Δ1*Δ2')     # Estimate Hessian
-            H = (H + H')/2                    # Symmetrization
-
-            # Regularization
-            H = sqrt(H*H + 1e-3LinearAlgebra.I(2Nz))
-
-            # Smoothing
-            H = (iter*Hsmooth + H) / (iter+1)
-            Hsmooth = H
-
             # Correct gradient with the Hessian
             gr .= ( H \ gr )
         else
@@ -184,25 +184,25 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
         df = f(zp) - f(zm)
         @. g = df / (2conj(Δ1))
 
+        dF = metric(z, zp) - metric(z, zm)
+
+        # Second order
+        # Hessian estimation as a forward difference of the gradient
+        @. zp = z + Δ1 + Δ2
+        @. zm = z - Δ1 + Δ2
+
+        dFp = metric(z, zp) - metric(z, zm)
+        H = @. (dFp - dF) / (2Δ1*Δ2')     # Estimate Hessian
+        H = (H + H')/2                    # Symmetrization
+
+        # Regularization
+        H = sqrt(H*H + 1e-3LinearAlgebra.I(Nz))
+
+        # Smoothing
+        H = (iter*Hsmooth + H) / (iter+1)
+        Hsmooth = H
+
         if iter > hessian_delay
-            dF = metric(z, zp) - metric(z, zm)
-
-            # Second order
-            # Hessian estimation as a forward difference of the gradient
-            @. zp = z + Δ1 + Δ2
-            @. zm = z - Δ1 + Δ2
-
-            dFp = metric(z, zp) - metric(z, zm)
-            H = @. (dFp - dF) / (2Δ1*Δ2')     # Estimate Hessian
-            H = (H + H')/2                    # Symmetrization
-
-            # Regularization
-            H = sqrt(H*H + 1e-3LinearAlgebra.I(Nz))
-
-            # Smoothing
-            H = (iter*Hsmooth + H) / (iter+1)
-            Hsmooth = H
-
             # Correct gradient with the Hessian
             g .= ( H \ g )
         else
@@ -293,21 +293,21 @@ function CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 2
         df = f(zp) - f(zm)
         @. g = df / (2conj(Δ1))
 
+        dF = metric(z, zp) - metric(z, zm)
+
+        # Second order
+        # Hessian estimation as a forward difference of the gradient
+        @. zp = z + Δ1 + Δ2
+        @. zm = z - Δ1 + Δ2
+
+        dFp = metric(z, zp) - metric(z, zm)
+        H = abs(dFp - dF) / (2bk^2) # Estimate Hessian # NOTE Erased the factor 1/4
+
+        # Smoothing
+        H = (iter*Hsmooth + H) / (iter+1)
+        Hsmooth = H
+
         if iter > hessian_delay
-            dF = metric(z, zp) - metric(z, zm)
-
-            # Second order
-            # Hessian estimation as a forward difference of the gradient
-            @. zp = z + Δ1 + Δ2
-            @. zm = z - Δ1 + Δ2
-
-            dFp = metric(z, zp) - metric(z, zm)
-            H = abs(dFp - dF) / (2bk^2) # Estimate Hessian # NOTE Erased the factor 1/4
-
-            # Smoothing
-            H = (iter*Hsmooth + H) / (iter+1)
-            Hsmooth = H
-
             # Correct gradient with the Hessian
             g .= ( H \ g )
         else
@@ -402,21 +402,21 @@ function SPSA_QN_scalar_on_complex(f::Function, metric::Function, z₀::Vector, 
         df = f(zp) - f(zm)
         @. gr = df / (2Δ1)
 
+        dF = metric(z, zp) - metric(z, zm)
+
+        # Second order
+        # Hessian estimation as a forward difference of the gradient
+        @. zpr = zr + Δ1 + Δ2
+        @. zmr = zr - Δ1 + Δ2
+
+        dFp = metric(z, zp) - metric(z, zm)
+        H = abs(dFp - dF) / (2bk^2) # Estimate Hessian scalar factor
+
+        # Smoothing
+        H = (iter*Hsmooth + H) / (iter+1)
+        Hsmooth = H
+
         if iter > hessian_delay
-            dF = metric(z, zp) - metric(z, zm)
-
-            # Second order
-            # Hessian estimation as a forward difference of the gradient
-            @. zpr = zr + Δ1 + Δ2
-            @. zmr = zr - Δ1 + Δ2
-
-            dFp = metric(z, zp) - metric(z, zm)
-            H = abs(dFp - dF) / (2bk^2) # Estimate Hessian scalar factor
-
-            # Smoothing
-            H = (iter*Hsmooth + H) / (iter+1)
-            Hsmooth = H
-
             # Correct gradient with the Hessian
             g .= ( H \ g )
         else
