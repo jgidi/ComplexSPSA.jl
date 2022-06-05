@@ -4,6 +4,7 @@
                     Ncalibrate = 0,
                     a = gains[:a], b = gains[:b],
                     A = gains[:A], s = gains[:s], t = gains[:t],
+                    constant_a = 0,
                     )
 
 The [Simultaneous Perturbation Stochastic Approximation (SPSA)](https://www.jhuapl.edu/spsa/)
@@ -25,6 +26,7 @@ function SPSA_on_complex(f::Function, z₀::Vector, Niters = 200;
                          a = gains[:a], b = gains[:b],
                          A = gains[:A], s = gains[:s], t = gains[:t],
                          postprocess = x->x,
+                         constant_a = 0,
                          )
 
     z = z₀[:] .+ 0im
@@ -52,6 +54,14 @@ function SPSA_on_complex(f::Function, z₀::Vector, Niters = 200;
 
     for iter in 1:Niters
         ak = a / (iter + A)^s
+
+    
+    # Use constant learning rate a
+        if constant_a != 0
+            ak = constant_a
+        end
+
+
         bk = b / iter^t
 
         # Vector of 2N real perturbations
@@ -82,6 +92,7 @@ end
           Ncalibrate = 0,
           a = gains[:a], b = gains[:b],
           A = gains[:A], s = gains[:s], t = gains[:t],
+          constant_a = 0,
           )
 
 The [Complex Simultaneous Perturbation Stochastic Approximation (CSPSA)](https://www.nature.com/articles/s41598-019-52289-0)
@@ -104,6 +115,7 @@ function CSPSA(f::Function, z₀::Vector, Niters = 200;
                a = gains[:a], b = gains[:b],
                A = gains[:A], s = gains[:s], t = gains[:t],
                postprocess = x->x,
+               constant_a = 0,
                )
 
     z = z₀[:] .+ 0im
@@ -123,6 +135,14 @@ function CSPSA(f::Function, z₀::Vector, Niters = 200;
 
     for iter in 1:Niters
         ak = a / (iter + A)^s
+
+
+        # Use constant learning rate a
+        if constant_a != 0
+            ak = constant_a
+        end
+
+
         bk = b / iter^t
 
         # Vector of complex perturbations

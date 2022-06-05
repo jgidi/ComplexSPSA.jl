@@ -4,6 +4,7 @@
                        hessian_delay = 0,
                        a = gains[:a], b = gains[:b],
                        A = gains[:A], s = gains[:s], t = gains[:t],
+                       constant_a = 0,
                        )
 
 The Quantum Natural SPSA, presented by [Gacon _et. al_. (2021)](https://arxiv.org/abs/2103.09232), is a second-order stochastic optimization method
@@ -37,6 +38,7 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
                             a = gains[:a], b = gains[:b],
                             A = gains[:A], s = gains[:s], t = gains[:t],
                             postprocess = x->x,
+                            constant_a = 0,
                             )
 
     z = z₀[:] .+ 0im
@@ -61,6 +63,13 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
     Hsmooth = LinearAlgebra.I(2Nz)
     for iter in 1:Niters
         ak = 1 / (iter + A)^s
+
+        # Use constant learning rate a
+        if constant_a != 0
+            ak = constant_a
+        end
+
+
         bk = b / iter^t
 
         # Perturbations
@@ -118,6 +127,7 @@ end
              hessian_delay = 0,
              a = gains[:a], b = gains[:b],
              A = gains[:A], s = gains[:s], t = gains[:t],
+             constant_a = 0,
              )
 
 The Quantum Natural CSPSA (QN-CSPSA), is a second-order stochastic optimization method which, analogous to the [Quantum Natural SPSA by Gacon _et. al_. (2021)](https://arxiv.org/abs/2103.09232),
@@ -150,6 +160,7 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
                   a = gains[:a], b = gains[:b],
                   A = gains[:A], s = gains[:s], t = gains[:t],
                   postprocess = x->x,
+                  constant_a = 0,
                   )
 
     z = z₀[:] .+ 0im
@@ -170,6 +181,13 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
     Hsmooth = LinearAlgebra.I(Nz)
     for iter in 1:Niters
         ak = 1 / (iter + A)^s
+
+        # Use constant learning rate a
+        if constant_a != 0
+            ak = constant_a
+        end
+
+
         bk = b / iter^t
 
         # Perturbations

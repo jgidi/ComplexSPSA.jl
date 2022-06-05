@@ -4,6 +4,7 @@
                      hessian_delay = 0,
                      a = gains[:a], b = gains[:b],
                      A = gains[:A], s = gains[:s], t = gains[:t],
+                     constant_a = 0,
                      )
 
 The second-order SPSA, commonly referred to as `2-SPSA` method is a second-order stochastic optimization method
@@ -30,6 +31,7 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
                           a = gains[:a], b = gains[:b],
                           A = gains[:A], s = gains[:s], t = gains[:t],
                           postprocess = x->x,
+                          constant_a = 0,
                           )
 
     z = z₀[:] .+ 0im
@@ -54,6 +56,13 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
     Hsmooth = LinearAlgebra.I(2Nz)
     for iter in 1:Niters
         ak = 1 / (iter + A)^s
+
+
+        # Use constant learning rate a
+        if constant_a != 0
+            ak = constant_a
+        end
+
         bk = b / iter^t
 
         # Perturbations
@@ -111,6 +120,7 @@ end
            hessian_delay = 0,
            a = gains[:a], b = gains[:b],
            A = gains[:A], s = gains[:s], t = gains[:t],
+           constant_a = 0,
            )
 
 The second-order CSPSA method, CSPSA2, is a second-order stochastic optimization method
@@ -137,6 +147,7 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
                 a = gains[:a], b = gains[:b],
                 A = gains[:A], s = gains[:s], t = gains[:t],
                 postprocess = x->x,
+                constant_a = 0,
                 )
 
     z = z₀[:] .+ 0im
@@ -157,6 +168,12 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
     Hsmooth = LinearAlgebra.I(Nz)
     for iter in 1:Niters
         ak = 1 / (iter + A)^s
+
+        # Use constant learning rate a
+        if constant_a != 0
+            ak = constant_a
+        end
+
         bk = b / iter^t
 
         # Perturbations
