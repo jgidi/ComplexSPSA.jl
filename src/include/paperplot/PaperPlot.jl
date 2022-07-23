@@ -13,6 +13,7 @@ function paperplot(
     ;
     dispersion = Statistics.var,
     labels   = ["SPSA", "CSPSA", "2-SPSA", "2-CSPSA", "QN-SPSA", "QN-CSPSA"],
+    columntitles = ["First order", "Second order", "Quantum Natural"],
     lines    = Dict(:real => (2, "blue"), :comp => (2, "red")),
     ylabel   = "Infidelity",
     xlabel   = "Measurements",
@@ -49,9 +50,9 @@ function paperplot(
     end
 
     # Titles
-    plot!(plots[1], title = "First order")
-    plot!(plots[2], title = "Second order")
-    plot!(plots[3], title = "Quantum Natural")
+    plot!(plots[1], title = columntitles[1])
+    plot!(plots[2], title = columntitles[2])
+    plot!(plots[3], title = columntitles[3])
 
     # xlabels
     plot!.(plots[1:3], xformatter=_->"")

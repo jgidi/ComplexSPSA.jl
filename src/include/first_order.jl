@@ -2,6 +2,7 @@
     SPSA_on_complex(f::Function, z₀::Vector, Niters = 200;
                     sign = -1,
                     Ncalibrate = 0,
+                    constant_learning_rate = false,
                     a = gains[:a], b = gains[:b],
                     A = gains[:A], s = gains[:s], t = gains[:t],
                     )
@@ -22,6 +23,7 @@ By default, the calibration is disabled (`Ncalibrate = 0`).
 function SPSA_on_complex(f::Function, z₀::Vector, Niters = 200;
                          sign = -1,
                          Ncalibrate = 0,
+                         constant_learning_rate = false,
                          a = gains[:a], b = gains[:b],
                          A = gains[:A], s = gains[:s], t = gains[:t],
                          postprocess = x->x,
@@ -51,7 +53,7 @@ function SPSA_on_complex(f::Function, z₀::Vector, Niters = 200;
     zacc = Array{Complex{Float64}}(undef, Nvars, Niters)
 
     for iter in 1:Niters
-        ak = a / (iter + A)^s
+        ak = constant_learning_rate ? a : a / (iter + A)^s
         bk = b / iter^t
 
         # Vector of 2N real perturbations
@@ -80,6 +82,7 @@ end
     CSPSA(f::Function, z₀::Vector, Niters = 200;
           sign = -1,
           Ncalibrate = 0,
+          constant_learning_rate = false,
           a = gains[:a], b = gains[:b],
           A = gains[:A], s = gains[:s], t = gains[:t],
           )
@@ -101,6 +104,7 @@ By default, the calibration is disabled (`Ncalibrate = 0`).
 function CSPSA(f::Function, z₀::Vector, Niters = 200;
                sign = -1,
                Ncalibrate = 0,
+               constant_learning_rate = false,
                a = gains[:a], b = gains[:b],
                A = gains[:A], s = gains[:s], t = gains[:t],
                postprocess = x->x,
@@ -122,7 +126,7 @@ function CSPSA(f::Function, z₀::Vector, Niters = 200;
     zacc = Array{Complex{Float64}}(undef, Nvars, Niters)
 
     for iter in 1:Niters
-        ak = a / (iter + A)^s
+        ak = constant_learning_rate ? a : a / (iter + A)^s
         bk = b / iter^t
 
         # Vector of complex perturbations
