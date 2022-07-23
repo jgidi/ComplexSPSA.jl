@@ -2,6 +2,7 @@
     SPSA_QN_on_complex(f::Function, z₀::Vector, Niters = 200;
                        sign = -1,
                        hessian_delay = 0,
+                       constant_learning_rate = false,
                        a = gains[:a], b = gains[:b],
                        A = gains[:A], s = gains[:s], t = gains[:t],
                        )
@@ -34,10 +35,10 @@ Notes
 function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters = 200;
                             sign = -1,
                             hessian_delay = 0,
+                            constant_learning_rate = false,
                             a = gains[:a], b = gains[:b],
                             A = gains[:A], s = gains[:s], t = gains[:t],
                             postprocess = x->x,
-                            constant_rate = NaN,
                             )
 
     z = z₀[:] .+ 0im
@@ -61,7 +62,7 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
     # Initial Hessian
     Hsmooth = LinearAlgebra.I(2Nz)
     for iter in 1:Niters
-        ak = 1 / (iter + A)^s
+        ak = constant_learning_rate ? 1.0 : 1.0 / (iter + A)^s
         bk = b / iter^t
 
         # Perturbations
@@ -101,10 +102,6 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
             ak = ak * a
         end
 
-        if !isnan(constant_rate)
-            ak = constant_rate
-        end
-
         # Update variable in-place
         @. z += sign * ak * g
 
@@ -121,6 +118,7 @@ end
     CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
              sign = -1,
              hessian_delay = 0,
+             constant_learning_rate = false,
              a = gains[:a], b = gains[:b],
              A = gains[:A], s = gains[:s], t = gains[:t],
              )
@@ -152,10 +150,10 @@ Notes
 function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
                   sign = -1,
                   hessian_delay = 0,
+                  constant_learning_rate = false,
                   a = gains[:a], b = gains[:b],
                   A = gains[:A], s = gains[:s], t = gains[:t],
                   postprocess = x->x,
-                  constant_rate = NaN,
                   )
 
     z = z₀[:] .+ 0im
@@ -175,7 +173,7 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
     # Initial Hessian
     Hsmooth = LinearAlgebra.I(Nz)
     for iter in 1:Niters
-        ak = 1 / (iter + A)^s
+        ak = constant_learning_rate ? 1.0 : 1.0 / (iter + A)^s
         bk = b / iter^t
 
         # Perturbations
@@ -215,10 +213,6 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
             ak = ak * a
         end
 
-        if !isnan(constant_rate)
-            ak = constant_rate
-        end
-
         # Update variable in-place
         @. z += sign * ak * g
 
@@ -235,6 +229,7 @@ end
     CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 200;
                     sign = -1,
                     hessian_delay = 0,
+                    constant_learning_rate = false,
                     a = gains[:a], b = gains[:b],
                     A = gains[:A], s = gains[:s], t = gains[:t],
                     )
@@ -266,6 +261,7 @@ Notes
 function CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 200;
                          sign = -1,
                          hessian_delay = 0,
+                         constant_learning_rate = false,
                          a = gains[:a], b = gains[:b],
                          A = gains[:A], s = gains[:s], t = gains[:t],
                          postprocess = x->x,
@@ -288,7 +284,7 @@ function CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 2
     # Initial Hessian
     Hsmooth = 1.0
     for iter in 1:Niters
-        ak = 1 / (iter + A)^s
+        ak = constant_learning_rate ? 1.0 : 1.0 / (iter + A)^s
         bk = b / iter^t
 
         # Perturbations
@@ -340,6 +336,7 @@ end
     SPSA_QN_scalar_on_complex(f::Function, metric::Function, z₀::Vector, Niters = 200;
                               sign = -1,
                               hessian_delay = 0,
+                              constant_learning_rate = false,
                               a = gains[:a], b = gains[:b],
                               A = gains[:A], s = gains[:s], t = gains[:t],
                               )
@@ -371,6 +368,7 @@ Notes
 function SPSA_QN_scalar_on_complex(f::Function, metric::Function, z₀::Vector, Niters = 200;
                                    sign = -1,
                                    hessian_delay = 0,
+                                   constant_learning_rate = false,
                                    a = gains[:a], b = gains[:b],
                                    A = gains[:A], s = gains[:s], t = gains[:t],
                                    postprocess = x->x,
@@ -397,7 +395,7 @@ function SPSA_QN_scalar_on_complex(f::Function, metric::Function, z₀::Vector, 
     # Initial Hessian
     Hsmooth = 1.0
     for iter in 1:Niters
-        ak = 1 / (iter + A)^s
+        ak = constant_learning_rate ? 1.0 : 1.0 / (iter + A)^s
         bk = b / iter^t
 
         # Perturbations
