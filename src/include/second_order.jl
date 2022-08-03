@@ -181,7 +181,7 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
         @. zm = z - Δ1 + Δ2
 
         dfp = f(zp) - f(zm)
-        H = @. (dfp - df) / (2Δ1*Δ2')     # Estimate Hessian
+        H = @. (dfp - df) / conj(2Δ1 * Δ2')     # Estimate Hessian
         H = (H + H')/2                    # Symmetrization
 
         # Hessian conditioning
