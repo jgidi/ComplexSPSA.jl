@@ -2,6 +2,7 @@
     SPSA_on_complex(f::Function, z₀::Vector, Niters = 200;
                     sign = -1,
                     Ncalibrate = 0,
+                    initial_iteration = 1,
                     constant_learning_rate = false,
                     a = gains[:a], b = gains[:b],
                     A = gains[:A], s = gains[:s], t = gains[:t],
@@ -23,6 +24,7 @@ By default, the calibration is disabled (`Ncalibrate = 0`).
 function SPSA_on_complex(f::Function, z₀::Vector, Niters = 200;
                          sign = -1,
                          Ncalibrate = 0,
+                         initial_iteration = 1,
                          constant_learning_rate = false,
                          a = gains[:a], b = gains[:b],
                          A = gains[:A], s = gains[:s], t = gains[:t],
@@ -52,7 +54,11 @@ function SPSA_on_complex(f::Function, z₀::Vector, Niters = 200;
     # Accumulator
     zacc = Array{Complex{Float64}}(undef, Nvars, Niters)
 
-    for iter in 1:Niters
+    for index in 1:Niters
+        # Number of iteration
+        iter = index + initial_iteration - 1
+
+        # Estimation parameters
         ak = constant_learning_rate ? a : a / (iter + A)^s
         bk = b / iter^t
 
@@ -72,7 +78,7 @@ function SPSA_on_complex(f::Function, z₀::Vector, Niters = 200;
         z .= postprocess(z)
 
         # Copy arguments as complex to the accumulator
-        zacc[:, iter] = z
+        zacc[:, index] = z
     end
 
     return zacc
@@ -82,6 +88,7 @@ end
     CSPSA(f::Function, z₀::Vector, Niters = 200;
           sign = -1,
           Ncalibrate = 0,
+          initial_iteration = 1,
           constant_learning_rate = false,
           a = gains[:a], b = gains[:b],
           A = gains[:A], s = gains[:s], t = gains[:t],
@@ -104,6 +111,7 @@ By default, the calibration is disabled (`Ncalibrate = 0`).
 function CSPSA(f::Function, z₀::Vector, Niters = 200;
                sign = -1,
                Ncalibrate = 0,
+               initial_iteration = 1,
                constant_learning_rate = false,
                a = gains[:a], b = gains[:b],
                A = gains[:A], s = gains[:s], t = gains[:t],
@@ -125,7 +133,10 @@ function CSPSA(f::Function, z₀::Vector, Niters = 200;
     # Accumulator
     zacc = Array{Complex{Float64}}(undef, Nvars, Niters)
 
-    for iter in 1:Niters
+    for index in 1:Niters
+        # Number of iteration
+        iter = index + initial_iteration - 1
+
         ak = constant_learning_rate ? a : a / (iter + A)^s
         bk = b / iter^t
 
@@ -141,7 +152,7 @@ function CSPSA(f::Function, z₀::Vector, Niters = 200;
         z .= postprocess(z)
 
         # Copy arguments as complex to the accumulator
-        zacc[:, iter] = z
+        zacc[:, index] = z
     end
 
     return zacc
