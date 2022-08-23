@@ -2,6 +2,7 @@
     SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
                      sign = -1,
                      hessian_delay = 0,
+                     initial_iteration = 1,
                      constant_learning_rate = false,
                      a = gains[:a], b = gains[:b],
                      A = gains[:A], s = gains[:s], t = gains[:t],
@@ -28,6 +29,7 @@ Notes
 function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
                           sign = -1,
                           hessian_delay = 0,
+                          initial_iteration = 1,
                           constant_learning_rate = false,
                           a = gains[:a], b = gains[:b],
                           A = gains[:A], s = gains[:s], t = gains[:t],
@@ -54,7 +56,11 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
 
     # Initial Hessian
     Hsmooth = LinearAlgebra.I(2Nz)
-    for iter in 1:Niters
+    for index in 1:Niters
+        # Number of iteration
+        iter = index + initial_iteration - 1
+
+        # Estimation parameters
         ak = constant_learning_rate ? 1.0 : 1.0 / (iter + A)^s
         bk = b / iter^t
 
@@ -85,10 +91,10 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
         H = sqrt(H*H + 1e-3LinearAlgebra.I(2Nz))
 
         # Smoothing
-        H = (iter*Hsmooth + H) / (iter+1)
+        H = (index*Hsmooth + H) / (index+1)
         Hsmooth = H
 
-        if iter > hessian_delay
+        if index > hessian_delay
             # Correct gradient with the Hessian
             gr .= ( H \ gr )
         else
@@ -101,7 +107,7 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
         # Apply postprocessing to z
         z .= postprocess(z)
 
-        zacc[:, iter] = z
+        zacc[:, index] = z
     end
 
     return zacc
@@ -111,6 +117,7 @@ end
     CSPSA2(f::Function, z₀::Vector, Niters = 200;
            sign = -1,
            hessian_delay = 0,
+           initial_iteration = 1,
            constant_learning_rate = false,
            a = gains[:a], b = gains[:b],
            A = gains[:A], s = gains[:s], t = gains[:t],
@@ -137,6 +144,7 @@ Notes
 function CSPSA2(f::Function, z₀::Vector, Niters = 200;
                 sign = -1,
                 hessian_delay = 0,
+                initial_iteration = 1,
                 constant_learning_rate = false,
                 a = gains[:a], b = gains[:b],
                 A = gains[:A], s = gains[:s], t = gains[:t],
@@ -159,7 +167,11 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
 
     # Initial Hessian
     Hsmooth = LinearAlgebra.I(Nz)
-    for iter in 1:Niters
+    for index in 1:Niters
+        # Number of iteration
+        iter = index + initial_iteration - 1
+
+        # Estimation parameters
         ak = constant_learning_rate ? 1.0 : 1.0 / (iter + A)^s
         bk = b / iter^t
 
@@ -190,10 +202,10 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
         H = sqrt(H*H + 1e-3LinearAlgebra.I(Nz))
 
         # Smoothing
-        H = (iter*Hsmooth + H) / (iter+1)
+        H = (index*Hsmooth + H) / (index+1)
         Hsmooth = H
 
-        if iter > hessian_delay
+        if index > hessian_delay
             # Correct gradient with the Hessian
             g .= ( H \ g )
         else
@@ -206,7 +218,7 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
         # Apply postprocessing to z
         z .= postprocess(z)
 
-        zacc[:, iter] = z
+        zacc[:, index] = z
     end
 
     return zacc
@@ -216,6 +228,7 @@ end
 function CSPSA2_full(f::Function, z₀::Vector, Niters = 200;
                      sign = -1,
                      hessian_delay = 0,
+                     initial_iteration = 1,
                      constant_learning_rate = false,
                      a = gains[:a], b = gains[:b],
                      A = gains[:A], s = gains[:s], t = gains[:t],
@@ -238,7 +251,11 @@ function CSPSA2_full(f::Function, z₀::Vector, Niters = 200;
 
     # Initial Hessian
     Hsmooth = LinearAlgebra.I(2Nz)
-    for iter in 1:Niters
+    for index in 1:Niters
+        # Number of iteration
+        iter = index + initial_iteration - 1
+
+        # Estimation parameters
         ak = constant_learning_rate ? 1.0 : 1.0 / (iter + A)^s
         bk = b / iter^t
 
@@ -275,12 +292,12 @@ function CSPSA2_full(f::Function, z₀::Vector, Niters = 200;
         H  = sqrt(H*H + 1e-3LinearAlgebra.I(2Nz))
 
         # Smoothing
-        H = (iter*Hsmooth + H) / (iter+1)
+        H = (index*Hsmooth + H) / (index+1)
         Hsmooth = H
-        # H2 = (iter*Hsmooth2 + H2) / (iter+1)
+        # H2 = (index*Hsmooth2 + H2) / (index+1)
         # Hsmooth2 = H2
 
-        if iter > hessian_delay
+        if index > hessian_delay
             # Correct gradient with the Hessian
             g2 = vcat(g, conj(g))
             g .= ( H \ g2 )[1:Nz]
@@ -295,7 +312,7 @@ function CSPSA2_full(f::Function, z₀::Vector, Niters = 200;
         # Apply postprocessing to z
         z .= postprocess(z)
 
-        zacc[:, iter] = z
+        zacc[:, index] = z
     end
 
     return zacc
@@ -303,13 +320,14 @@ end
 
 
 function CSPSA2_scalar(f::Function, z₀::Vector, Niters = 200;
-                     sign = -1,
-                     hessian_delay = 0,
-                     constant_learning_rate = false,
-                     a = gains[:a], b = gains[:b],
-                     A = gains[:A], s = gains[:s], t = gains[:t],
-                     postprocess = x->x,
-                     )
+                       sign = -1,
+                       hessian_delay = 0,
+                       initial_iteration = 1,
+                       constant_learning_rate = false,
+                       a = gains[:a], b = gains[:b],
+                       A = gains[:A], s = gains[:s], t = gains[:t],
+                       postprocess = x->x,
+                       )
 
     z = z₀[:] .+ 0im
     Nz = length(z)
@@ -327,7 +345,11 @@ function CSPSA2_scalar(f::Function, z₀::Vector, Niters = 200;
 
     # Initial Hessian
     Hsmooth = one(z[1])
-    for iter in 1:Niters
+    for index in 1:Niters
+        # Number of iteration
+        iter = index + initial_iteration - 1
+
+        # Estimation parameters
         ak = constant_learning_rate ? 1.0 : 1.0 / (iter + A)^s
         bk = b / iter^t
 
@@ -355,10 +377,10 @@ function CSPSA2_scalar(f::Function, z₀::Vector, Niters = 200;
         h = sqrt(abs2(d2f) + 1e-3)
         # h = abs(d2f)
 
-        Hsmooth = (iter*Hsmooth + h) / (iter + 1)
+        Hsmooth = (index*Hsmooth + h) / (index + 1)
 
 
-        if iter > hessian_delay
+        if index > hessian_delay
             # Correct gradient with the Hessian
             g .= ( Hsmooth \ g )
 
@@ -372,7 +394,7 @@ function CSPSA2_scalar(f::Function, z₀::Vector, Niters = 200;
         # Apply postprocessing to z
         z .= postprocess(z)
 
-        zacc[:, iter] = z
+        zacc[:, index] = z
     end
 
     return zacc
@@ -381,6 +403,7 @@ end
 function MCSPSA2(f::Function, z₀::Vector, Niters = 200;
                  sign = -1,
                  hessian_delay = 0,
+                 initial_iteration = 1,
                  constant_learning_rate = false,
                  a = gains[:a], b = gains[:b],
                  A = gains[:A], s = gains[:s], t = gains[:t],
@@ -403,7 +426,11 @@ function MCSPSA2(f::Function, z₀::Vector, Niters = 200;
 
     # Initial Hessian
     Hsmooth = LinearAlgebra.I(Nz)
-    for iter in 1:Niters
+    for index in 1:Niters
+        # Number of iteration
+        iter = index + initial_iteration - 1
+
+        # Estimation parameters
         ak = constant_learning_rate ? 1.0 : 1.0 / (iter + A)^s
         bk = b / iter^t
 
@@ -434,7 +461,7 @@ function MCSPSA2(f::Function, z₀::Vector, Niters = 200;
         H = sqrt(H*H + 1e-3LinearAlgebra.I(Nz))
 
         # Smoothing
-        H = (iter*Hsmooth + H) / (iter+1)
+        H = (index*Hsmooth + H) / (index+1)
         Hsmooth = H
 
         vals = LinearAlgebra.eigvals(H)
@@ -453,7 +480,7 @@ function MCSPSA2(f::Function, z₀::Vector, Niters = 200;
 
         h = exp.(sum(log, vals)/Nz)
 
-        if iter > hessian_delay
+        if index > hessian_delay
             # Correct gradient with the Hessian
             g .= ( h \ g )
         else
@@ -466,7 +493,7 @@ function MCSPSA2(f::Function, z₀::Vector, Niters = 200;
         # Apply postprocessing to z
         z .= postprocess(z)
 
-        zacc[:, iter] = z
+        zacc[:, index] = z
     end
 
     return zacc
