@@ -6,6 +6,7 @@
                        constant_learning_rate = false,
                        a = gains[:a], b = gains[:b],
                        A = gains[:A], s = gains[:s], t = gains[:t],
+                       a2 = 1.0,
                        )
 
 The Quantum Natural SPSA, presented by [Gacon _et. al_. (2021)](https://arxiv.org/abs/2103.09232), is a second-order stochastic optimization method
@@ -40,6 +41,7 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
                             constant_learning_rate = false,
                             a = gains[:a], b = gains[:b],
                             A = gains[:A], s = gains[:s], t = gains[:t],
+                            a2 = 1.0,
                             postprocess = x->x,
                             )
 
@@ -104,7 +106,11 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
         if index > hessian_delay
             # Correct gradient with the Hessian
             gr .= ( H \ gr )
+
+            # Second order stepsize
+            ak = ak * a2
         else
+            # First order stepsize
             ak = ak * a
         end
 
@@ -128,6 +134,7 @@ end
              constant_learning_rate = false,
              a = gains[:a], b = gains[:b],
              A = gains[:A], s = gains[:s], t = gains[:t],
+             a2 = 1.0,
              )
 
 The Quantum Natural CSPSA (QN-CSPSA), is a second-order stochastic optimization method which, analogous to the [Quantum Natural SPSA by Gacon _et. al_. (2021)](https://arxiv.org/abs/2103.09232),
@@ -161,6 +168,7 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
                   constant_learning_rate = false,
                   a = gains[:a], b = gains[:b],
                   A = gains[:A], s = gains[:s], t = gains[:t],
+                  a2 = 1.0,
                   postprocess = x->x,
                   )
 
@@ -221,7 +229,11 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
         if index > hessian_delay
             # Correct gradient with the Hessian
             g .= ( H \ g )
+
+            # Second order stepsize
+            ak = ak * a2
         else
+            # First order stepsize
             ak = ak * a
         end
 

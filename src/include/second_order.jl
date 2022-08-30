@@ -6,6 +6,7 @@
                      constant_learning_rate = false,
                      a = gains[:a], b = gains[:b],
                      A = gains[:A], s = gains[:s], t = gains[:t],
+                     a2 = 1.0,
                      )
 
 The second-order SPSA, commonly referred to as `2-SPSA` method is a second-order stochastic optimization method
@@ -33,6 +34,7 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
                           constant_learning_rate = false,
                           a = gains[:a], b = gains[:b],
                           A = gains[:A], s = gains[:s], t = gains[:t],
+                          a2 = 1.0,
                           postprocess = x->x,
                           )
 
@@ -97,7 +99,11 @@ function SPSA2_on_complex(f::Function, z₀::Vector, Niters = 200;
         if index > hessian_delay
             # Correct gradient with the Hessian
             gr .= ( H \ gr )
+
+            # Second order stepsize
+            ak = ak * a2
         else
+            # First order stepsize
             ak = ak * a
         end
 
@@ -148,6 +154,7 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
                 constant_learning_rate = false,
                 a = gains[:a], b = gains[:b],
                 A = gains[:A], s = gains[:s], t = gains[:t],
+                a2 = 1.0,
                 postprocess = x->x,
                 )
 
@@ -208,7 +215,11 @@ function CSPSA2(f::Function, z₀::Vector, Niters = 200;
         if index > hessian_delay
             # Correct gradient with the Hessian
             g .= ( H \ g )
+
+            # Second order stepsize
+            ak = ak * a2
         else
+            # First order stepsize
             ak = ak * a
         end
 
@@ -232,6 +243,7 @@ function CSPSA2_full(f::Function, z₀::Vector, Niters = 200;
                      constant_learning_rate = false,
                      a = gains[:a], b = gains[:b],
                      A = gains[:A], s = gains[:s], t = gains[:t],
+                     a2 = 1.0,
                      postprocess = x->x,
                      )
 
@@ -302,7 +314,10 @@ function CSPSA2_full(f::Function, z₀::Vector, Niters = 200;
             g2 = vcat(g, conj(g))
             g .= ( H \ g2 )[1:Nz]
 
+            # Second order stepsize
+            ak = ak * a2
         else
+            # First order stepsize
             ak = ak * a
         end
 
@@ -327,6 +342,7 @@ function MCSPSA2(f::Function, z₀::Vector, Niters = 200;
                  constant_learning_rate = false,
                  a = gains[:a], b = gains[:b],
                  A = gains[:A], s = gains[:s], t = gains[:t],
+                 a2 = 1.0,
                  postprocess = x->x,
                  )
 
@@ -403,7 +419,11 @@ function MCSPSA2(f::Function, z₀::Vector, Niters = 200;
         if index > hessian_delay
             # Correct gradient with the Hessian
             g .= ( h \ g )
+
+            # Second order stepsize
+            ak = ak * a2
         else
+            # First order stepsize
             ak = ak * a
         end
 
