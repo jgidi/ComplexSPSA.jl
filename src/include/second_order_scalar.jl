@@ -5,6 +5,7 @@ function SPSA2_scalar_on_complex(f::Function, z₀::Vector, Niters = 200;
                                  constant_learning_rate = false,
                                  a = gains[:a], b = gains[:b],
                                  A = gains[:A], s = gains[:s], t = gains[:t],
+                                 a2 = 1.0,
                                  postprocess = x->x,
                                  )
 
@@ -62,7 +63,11 @@ function SPSA2_scalar_on_complex(f::Function, z₀::Vector, Niters = 200;
         if index > hessian_delay
             # Correct gradient with the Hessian
             gr .= ( Hsmooth \ gr )
+
+            # Second order stepsize
+            ak = ak * a2
         else
+            # First order stepsize
             ak = ak * a
         end
 
@@ -85,6 +90,7 @@ function CSPSA2_scalar(f::Function, z₀::Vector, Niters = 200;
                        constant_learning_rate = false,
                        a = gains[:a], b = gains[:b],
                        A = gains[:A], s = gains[:s], t = gains[:t],
+                       a2 = 1.0,
                        postprocess = x->x,
                        )
 
@@ -139,7 +145,10 @@ function CSPSA2_scalar(f::Function, z₀::Vector, Niters = 200;
             # Correct gradient with the Hessian
             g .= ( Hsmooth \ g )
 
+            # Second order stepsize
+            ak = ak * a2
         else
+            # First order stepsize
             ak = ak * a
         end
 

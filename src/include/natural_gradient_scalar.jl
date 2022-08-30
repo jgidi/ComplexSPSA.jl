@@ -6,6 +6,7 @@
                               constant_learning_rate = false,
                               a = gains[:a], b = gains[:b],
                               A = gains[:A], s = gains[:s], t = gains[:t],
+                              a2 = 1.0,
                               )
 
 The Quantum Natural scalar SPSA (QN-SPSA scalar) is a method based upon QN-SPSA, which avoids matrix operations by discarding the 2-dimensional
@@ -39,6 +40,7 @@ function SPSA_QN_scalar_on_complex(f::Function, metric::Function, z₀::Vector, 
                                    constant_learning_rate = false,
                                    a = gains[:a], b = gains[:b],
                                    A = gains[:A], s = gains[:s], t = gains[:t],
+                                   a2 = 1.0,
                                    postprocess = x->x,
                                    )
 
@@ -99,7 +101,11 @@ function SPSA_QN_scalar_on_complex(f::Function, metric::Function, z₀::Vector, 
         if index > hessian_delay
             # Correct gradient with the Hessian
             g .= ( H \ g )
+
+            # Second order stepsize
+            ak = ak * a2
         else
+            # First order stepsize
             ak = ak * a
         end
 
@@ -123,6 +129,7 @@ end
                     constant_learning_rate = false,
                     a = gains[:a], b = gains[:b],
                     A = gains[:A], s = gains[:s], t = gains[:t],
+                    a2 = 1.0,
                     )
 
 The Quantum Natural scalar CSPSA (QN-CSPSA scalar) is a method based upon QN-CSPSA, which avoids matrix operations by discarding the 2-dimensional
@@ -156,6 +163,7 @@ function CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 2
                          constant_learning_rate = false,
                          a = gains[:a], b = gains[:b],
                          A = gains[:A], s = gains[:s], t = gains[:t],
+                         a2 = 1.0,
                          postprocess = x->x,
                          )
 
@@ -212,7 +220,11 @@ function CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 2
         if index > hessian_delay
             # Correct gradient with the Hessian
             g .= ( H \ g )
+
+            # Second order stepsize
+            ak = ak * a2
         else
+            # First order stepsize
             ak = ak * a
         end
 
