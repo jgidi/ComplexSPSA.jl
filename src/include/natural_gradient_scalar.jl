@@ -1,16 +1,15 @@
 """
-    SPSA_QN_on_complex(f::Function, z₀::Vector, Niters = 200;
-                       sign = -1,
-                       hessian_delay = 0,
-                       initial_iteration = 1,
-                       constant_learning_rate = false,
-                       a = gains[:a], b = gains[:b],
-                       A = gains[:A], s = gains[:s], t = gains[:t],
-                       )
+    SPSA_QN_scalar_on_complex(f::Function, metric::Function, z₀::Vector, Niters = 200;
+                              sign = -1,
+                              hessian_delay = 0,
+                              initial_iteration = 1,
+                              constant_learning_rate = false,
+                              a = gains[:a], b = gains[:b],
+                              A = gains[:A], s = gains[:s], t = gains[:t],
+                              )
 
-The Quantum Natural SPSA, presented by [Gacon _et. al_. (2021)](https://arxiv.org/abs/2103.09232), is a second-order stochastic optimization method
-based on [2-SPSA](https://www.jhuapl.edu/spsa/), where the second-order correction comes from the Hessian of the Fubini-Study metric of the problem
-instead of the Hessian of the function under optimization.
+The Quantum Natural scalar SPSA (QN-SPSA scalar) is a method based upon QN-SPSA, which avoids matrix operations by discarding the 2-dimensional
+perturbation distribution of the Hessian matrix and only retaining its scalar factor. *This method is currently experimental.*
 
 Note that the metric must be a function taking two input vectors, and returning minus a half of the fidelity between the states
 generated each from one input,
@@ -19,9 +18,9 @@ generated each from one input,
 
 where \$ ψ(\\vec z) \$ is the quantum state parameterized with the variables \$ \\vec z \$.
 
-This function performs Quantum Natural SPSA optimization of the real-valued function `f` of complex variables by treating each complex variable
-as a pair of real variables, starting from the complex vector `z₀` and iterating `Niter` times. Then, returns a complex matrix, `zacc`, with size
-`(length(z₀), Niters)`, such that `zacc[i, j]` corresponds to the value of the `i`-th complex variable on the `j`-th iteration.
+This function performs scalar-approximated Quantum Natural SPSA optimization of the real-valued function `f` of complex variables by treating each
+complex variable as a pair of real variables, starting from the complex vector `z₀` and iterating `Niter` times. Then, returns a complex matrix,
+`zacc`, with size `(length(z₀), Niters)`, such that `zacc[i, j]` corresponds to the value of the `i`-th complex variable on the `j`-th iteration.
 
 The input parameters `a`, `b`, `A`, `s`, and `t` can be provided as keyword arguments of the function.
 If not provided explicitly, they are selected at runtime from the [`ComplexSPSA.gains`](@ref) dictionary.
@@ -33,18 +32,18 @@ Notes
 ===
 * The value of `a` is only required to perform a possible number of initial first-order iterations (via `hessian_delay`), since the second-order iterations yield an optimum value for `a = 1`.
 """
-function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters = 200;
-                            sign = -1,
-                            hessian_delay = 0,
-                            initial_iteration = 1,
-                            constant_learning_rate = false,
-                            a = gains[:a], b = gains[:b],
-                            A = gains[:A], s = gains[:s], t = gains[:t],
-                            postprocess = x->x,
-                            )
+function SPSA_QN_scalar_on_complex(f::Function, metric::Function, z₀::Vector, Niters = 200;
+                                   sign = -1,
+                                   hessian_delay = 0,
+                                   initial_iteration = 1,
+                                   constant_learning_rate = false,
+                                   a = gains[:a], b = gains[:b],
+                                   A = gains[:A], s = gains[:s], t = gains[:t],
+                                   postprocess = x->x,
+                                   )
 
     z = z₀[:] .+ 0im
-    zr = reinterpret(Float64, z)        # View of z as pairs of reals
+    zr = reinterpret(Float64, z)
     Nz = length(z)
 
     # Set of possible perturbations
@@ -62,7 +61,7 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
     zacc = Array{Complex{Float64}}(undef, Nz, Niters)
 
     # Initial Hessian
-    Hsmooth = LinearAlgebra.I(2Nz)
+    Hsmooth = 1.0
     for index in 1:Niters
         # Number of iteration
         iter = index + initial_iteration - 1
@@ -91,11 +90,7 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
         @. zmr = zr - Δ1 + Δ2
 
         dFp = metric(z, zp) - metric(z, zm)
-        H = @. (dFp - dF) / (2Δ1*Δ2')     # Estimate Hessian
-        H = (H + H')/2                    # Symmetrization
-
-        # Regularization
-        H = sqrt(H*H + 1e-3LinearAlgebra.I(2Nz))
+        H = abs(dFp - dF) / (2bk^2) # Estimate Hessian scalar factor
 
         # Smoothing
         H = (index*Hsmooth + H) / (index+1)
@@ -103,7 +98,7 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
 
         if index > hessian_delay
             # Correct gradient with the Hessian
-            gr .= ( H \ gr )
+            g .= ( H \ g )
         else
             ak = ak * a
         end
@@ -121,26 +116,26 @@ function SPSA_QN_on_complex(f::Function, metric::Function, z₀::Vector, Niters 
 end
 
 """
-    CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
-             sign = -1,
-             hessian_delay = 0,
-             initial_iteration = 1,
-             constant_learning_rate = false,
-             a = gains[:a], b = gains[:b],
-             A = gains[:A], s = gains[:s], t = gains[:t],
-             )
+    CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 200;
+                    sign = -1,
+                    hessian_delay = 0,
+                    initial_iteration = 1,
+                    constant_learning_rate = false,
+                    a = gains[:a], b = gains[:b],
+                    A = gains[:A], s = gains[:s], t = gains[:t],
+                    )
 
-The Quantum Natural CSPSA (QN-CSPSA), is a second-order stochastic optimization method which, analogous to the [Quantum Natural SPSA by Gacon _et. al_. (2021)](https://arxiv.org/abs/2103.09232),
-takes into account a stochastic approximation of the Fubiny-Study metric instead of the usual Hessian correction from [`CSPSA2`](@ref).
-However, the main difference between QN-CSPSA and QN-SPSA is that the former is natively formulated in terms of complex variables, while the latter
-requires real variables. Note that the metric must be a function taking two input vectors, and returning minus a half of the fidelity between the states
+The Quantum Natural scalar CSPSA (QN-CSPSA scalar) is a method based upon QN-CSPSA, which avoids matrix operations by discarding the 2-dimensional
+perturbation distribution of the Hessian matrix and only retaining its scalar factor. *This method is currently experimental.*
+
+Note that the metric must be a function taking two input vectors, and returning minus a half of the fidelity between the states
 generated each from one input,
 
 \$ \\text{metric}(\\vec z₁, \\vec z₂) = -\\frac{1}{2} |\\langle ψ(\\vec z₁) | ψ(\\vec z₂) \\rangle|^2, \$
 
 where \$ ψ(\\vec z) \$ is the quantum state parameterized with the variables \$ \\vec z \$.
 
-This function performs Quantum Natural CSPSA optimization of the real-valued function `f` of complex variables,
+This function performs scalar-approximated Quantum Natural CSPSA optimization of the real-valued function `f` of complex variables,
 starting from the complex vector `z₀` and iterating `Niter` times. Then, returns a complex matrix, `zacc`,
 with size `(length(z₀), Niters)`, such that `zacc[i, j]` corresponds to the value of the `i`-th complex variable on the `j`-th iteration.
 
@@ -154,15 +149,15 @@ Notes
 ===
 * The value of `a` is only required to perform a possible number of initial first-order iterations (via `hessian_delay`), since the second-order iterations yield an optimum value for `a = 1`.
 """
-function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
-                  sign = -1,
-                  hessian_delay = 0,
-                  initial_iteration = 1,
-                  constant_learning_rate = false,
-                  a = gains[:a], b = gains[:b],
-                  A = gains[:A], s = gains[:s], t = gains[:t],
-                  postprocess = x->x,
-                  )
+function CSPSA_QN_scalar(f::Function, metric::Function, z₀::Vector, Niters = 200;
+                         sign = -1,
+                         hessian_delay = 0,
+                         initial_iteration = 1,
+                         constant_learning_rate = false,
+                         a = gains[:a], b = gains[:b],
+                         A = gains[:A], s = gains[:s], t = gains[:t],
+                         postprocess = x->x,
+                         )
 
     z = z₀[:] .+ 0im
     Nz = length(z)
@@ -179,7 +174,7 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
     zacc = Array{Complex{Float64}}(undef, Nz, Niters)
 
     # Initial Hessian
-    Hsmooth = LinearAlgebra.I(Nz)
+    Hsmooth = 1.0
     for index in 1:Niters
         # Number of iteration
         iter = index + initial_iteration - 1
@@ -208,11 +203,7 @@ function CSPSA_QN(f::Function, metric::Function, z₀::Vector, Niters = 200;
         @. zm = z - Δ1 + Δ2
 
         dFp = metric(z, zp) - metric(z, zm)
-        H = @. (dFp - dF) / (2Δ1*Δ2')     # Estimate Hessian
-        H = (H + H')/2                    # Symmetrization
-
-        # Regularization
-        H = sqrt(H*H + 1e-3LinearAlgebra.I(Nz))
+        H = abs(dFp - dF) / (2bk^2) # Estimate Hessian # NOTE Erased the factor 1/4
 
         # Smoothing
         H = (index*Hsmooth + H) / (index+1)
