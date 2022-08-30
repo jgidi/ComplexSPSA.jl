@@ -400,6 +400,8 @@ function CSPSA2_scalar(f::Function, z₀::Vector, Niters = 200;
     return zacc
 end
 
+# M2SPSA (Xun Zhu, 2021)
+# Matrix Conditioning and Adaptive Simultaneous Perturbation Stochastic Approximation Method
 function MCSPSA2(f::Function, z₀::Vector, Niters = 200;
                  sign = -1,
                  hessian_delay = 0,
