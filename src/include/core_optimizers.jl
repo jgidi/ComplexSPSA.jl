@@ -15,19 +15,16 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
     # Per-iteration accumulator for z
     acc = Array{T}(undef, Nvars, Niters)
 
-    learning_rate(k) =  a / (k + A)^s
-    perturbation_magnitude(k) = b / k^t
-
     if Ncalibrate > 0
-        bk = perturbation_magnitude(initial_iter)
+        bk = decaying_pert_magnitude(b, t, initial_iter)
         a = calibrate_gain_a(f, z, a, bk, Ncalibrate)
     end
 
     for iter in 1:Niters
         k = iter + initial_iter - 1
 
-        ak = learning_rate(k)
-        bk = perturbation_magnitude(k)
+        ak = decaying_learning_rate(a, A, s, k)
+        bk = decaying_pert_magnitude(b, t, k)
 
         # Estimates of the gradient and Hessian
         g = estimate_g(f, z, bk, Nresampling)
@@ -68,9 +65,6 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
     # Per-iteration accumulator for z
     acc = Array{T}(undef, Nvars, Niters)
 
-    learning_rate(k) = constant_learning_rate ? 1.0 : 1.0/(k + A)^s
-    perturbation_magnitude(k) = b / k^t
-
     # Initial Hessian
     if isnothing(initial_hessian)
         H0 = Matrix{T}(I, Nvars, Nvars)
@@ -78,15 +72,15 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
 
     # Obtain an initial Hessian estimate by measurement
     if Ncalibrate > 0
-        bk = perturbation_magnitude(initial_iter)
+        bk = decaying_pert_magnitude(b, t, initial_iter)
         g, H0 = estimate_gH(f, fidelity, z, bk, bk, Ncalibrate)
     end
 
     for iter in 1:Niters
         k = iter + initial_iter - 1
 
-        ak = learning_rate(k)
-        bk = perturbation_magnitude(k)
+        ak = constant_learning_rate ? 1.0 : decaying_learning_rate(1.0, A, s, k)
+        bk = decaying_pert_magnitude(b, t, k)
 
         # Estimates of the gradient and Hessian
         g, H = estimate_gH(f, fidelity, z, bk, bk, Nresampling)

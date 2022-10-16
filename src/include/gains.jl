@@ -39,6 +39,10 @@ gains = Dict(
     :t => 0.101,
 )
 
+
+decaying_learning_rate(a, A, s, k) =  a / (k + A)^s
+decaying_pert_magnitude(b, t, k) = b / k^t
+
 # TODO: verify
 function calibrate_gain_a(f, z, target_a, bk, Ncalibrate)
 
