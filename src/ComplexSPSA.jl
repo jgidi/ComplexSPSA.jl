@@ -20,11 +20,6 @@ using QuantumToolkit
 using LinearAlgebra, Statistics
 
 include("include/gains.jl")
-include("include/first_order.jl")
-include("include/second_order.jl")
-include("include/second_order_scalar.jl")
-include("include/natural_gradient.jl")
-include("include/natural_gradient_scalar.jl")
 include("include/tools.jl")
 
 # Qiskit wrapper submodule
