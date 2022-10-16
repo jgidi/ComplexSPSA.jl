@@ -20,6 +20,10 @@ using QuantumToolkit
 using LinearAlgebra, Statistics
 
 include("include/gains.jl")
+include("include/estimates.jl")
+include("include/core_optimizers.jl")
+include("include/hessian_postprocess.jl")
+include("include/implementations.jl")
 include("include/tools.jl")
 
 # Qiskit wrapper submodule
