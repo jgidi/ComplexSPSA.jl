@@ -15,13 +15,10 @@ export MCSPSA2, CSPSA2_full                       #
 export SPSA_QN_on_complex, CSPSA_QN               # Natural gradient
 export SPSA_QN_scalar_on_complex, CSPSA_QN_scalar # Scalar Natural gradient
 
-# Tools
-export squeeze, apply_along_dim, simulate_experiment
-
 # External dependencies
 import LinearAlgebra
 import Statistics
-import Distributions: Binomial
+using QuantumToolkit
 
 include("include/gains.jl")
 include("include/first_order.jl")
