@@ -16,9 +16,8 @@ export SPSA_QN_on_complex, CSPSA_QN               # Natural gradient
 export SPSA_QN_scalar_on_complex, CSPSA_QN_scalar # Scalar Natural gradient
 
 # External dependencies
-import LinearAlgebra
-import Statistics
 using QuantumToolkit
+using LinearAlgebra, Statistics
 
 include("include/gains.jl")
 include("include/first_order.jl")
