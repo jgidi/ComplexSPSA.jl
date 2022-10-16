@@ -91,9 +91,11 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
 
         # Only apply Hessian after hessian_delay
         if iter > hessian_delay
+            # Preconditioned iteration
             g = apply_hessian(H0, g)
             ak *= a2
         else
+            # First order iteration
             ak *= a
         end
 
