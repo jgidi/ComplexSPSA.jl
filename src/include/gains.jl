@@ -39,18 +39,24 @@ gains = Dict(
     :t => 0.101,
 )
 
-function calibrate_gain_a(f, z, target_a, b, perturbations, Ncalibrate)
-    avg = 0.0
+# TODO: verify
+function calibrate_gain_a(f, z, target_a, bk, Ncalibrate)
+
+    avg = zero(z)
+    samples = perturbation_samples(eltype(z))
     for _ in 1:Ncalibrate
-        Δ = rand(perturbations, length(z))
-        df = f(@. z + b*Δ) - f(@. z - b*Δ)
+        Δ = rand(samples, length(z))
+        df = f(@. z + bk*Δ) - f(@. z - bk*Δ)
 
         avg += abs(df)
     end
 
     # Average gradient magnitude
-    avg /= (2*b*Ncalibrate)
+    avg /= (2*bk*Ncalibrate)
 
     # Calibrated value of a
-    return target_a / avg
+    a_new = target_a / avg
+
+    # TODO verify if calibration was successful
+    return a_new
 end
