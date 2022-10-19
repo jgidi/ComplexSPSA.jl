@@ -6,7 +6,7 @@ function estimate_g(f, z, bk,
                     )
 
     Nvars, T = length(z), eltype(z)
-
+    g = zeros(T, Nvars)
     samples = perturbation_samples(T)
 
     for _ in 1:Nresampling
