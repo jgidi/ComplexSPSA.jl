@@ -1,4 +1,4 @@
-perturbation_samples(::Type{<:Real}) = Float64((-1, 1))
+perturbation_samples(::Type{<:Real}) = Float64.((-1, 1))
 perturbation_samples(::Type{<:Complex}) = ComplexF64.((-1, 1, -im, im))
 
 function estimate_g(f, z, bk,
