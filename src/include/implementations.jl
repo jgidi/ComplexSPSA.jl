@@ -59,8 +59,8 @@ function SPSA2_on_complex(f::Function, guess::AbstractVector, Niters; kwargs...)
     return Matrix(reinterpret(ComplexF64, acc))
 end
 
-function CSPSA2(f::Function, guess::AbstractVector{<:Complex}, Niters; kwargs...)
-    return _preconditioned(f, guess, Niters; kwargs...)
+function CSPSA2(f::Function, guess::AbstractVector, Niters; kwargs...)
+    return _preconditioned(f, ComplexF64.(guess), Niters; kwargs...)
 end
 
 ## Scalars
@@ -79,8 +79,8 @@ function SPSA2_scalar_on_complex(f::Function, guess::AbstractVector, Niters; kwa
     return Matrix(reinterpret(ComplexF64, acc))
 end
 
-function CSPSA2_scalar(f::Function, guess::AbstractVector{<:Complex}, Niters; kwargs...)
-    return _preconditioned(f, guess, Niters;
+function CSPSA2_scalar(f::Function, guess::AbstractVector, Niters; kwargs...)
+    return _preconditioned(f, ComplexF64.(guess), Niters;
                            hessian_estimate=hessian_estimate_scalar,
                            kwargs...)
 end
@@ -106,16 +106,16 @@ function SPSA_QN_on_complex(f::Function, fidelity::Function,
 end
 
 function CSPSA_QN(f::Function, fidelity::Function,
-                  guess::AbstractVector{<:Complex}, Niters; kwargs...)
+                  guess::AbstractVector, Niters; kwargs...)
 
-    return _preconditioned(f, guess, Niters;
+    return _preconditioned(f, ComplexF64.(guess), Niters;
                            fidelity=fidelity,
                            kwargs...)
 end
 
 ## Scalars
-function SPSA_QN(f::Function, fidelity::Function,
-                 guess::AbstractVector{<:Real}, Niters; kwargs...)
+function SPSA_QN_scalar(f::Function, fidelity::Function,
+                        guess::AbstractVector{<:Real}, Niters; kwargs...)
 
     return _preconditioned(f, guess, Niters;
                            fidelity=fidelity,
@@ -135,10 +135,10 @@ function SPSA_QN_scalar_on_complex(f::Function, fidelity::Function,
     return Matrix(reinterpret(ComplexF64, acc))
 end
 
-function CSPSA_QN(f::Function, fidelity::Function,
-                  guess::AbstractVector{<:Complex}, Niters; kwargs...)
+function CSPSA_QN_scalar(f::Function, fidelity::Function,
+                         guess::AbstractVector, Niters; kwargs...)
 
-    return _preconditioned(f, guess, Niters;
+    return _preconditioned(f, ComplexF64.(guess), Niters;
                            fidelity=fidelity,
                            hessian_estimate=hessian_estimate_scalar,
                            kwargs...)
