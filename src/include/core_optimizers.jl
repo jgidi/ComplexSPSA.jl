@@ -13,7 +13,8 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
     Nvars = length(z)
 
     # Per-iteration accumulator for z
-    acc = Array{T}(undef, Nvars, Niters)
+    acc = Array{T}(undef, Nvars, Niters+1)
+    acc[:, 1] = z
 
     if Ncalibrate > 0
         bk = decaying_pert_magnitude(b, t, initial_iter)
@@ -34,6 +35,9 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
 
         # postprocessing
         z .= postprocess(z)
+
+        # Copy current values to the accumulator
+        acc[:, iter+1] = z
     end
 
     return acc
@@ -63,7 +67,8 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
     Nvars = length(z)
 
     # Per-iteration accumulator for z
-    acc = Array{T}(undef, Nvars, Niters)
+    acc = Array{T}(undef, Nvars, Niters+1)
+    acc[:, 1] = z
 
     # Initial Hessian
     if isnothing(initial_hessian)
@@ -106,7 +111,7 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
         z .= postprocess(z)
 
         # Copy current values to the accumulator
-        acc[:, iter] = z
+        acc[:, iter+1] = z
     end
 
     return acc
