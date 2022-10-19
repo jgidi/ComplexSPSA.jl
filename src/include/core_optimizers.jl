@@ -58,8 +58,8 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
                          initial_hessian = nothing,
                          regularization = 1e-3,
                          apply_hessian = apply_hessian,
-                         hessian_estimate = hessian_estimate,
                          hessian_postprocess = hessian_postprocess,
+                         hessian_estimate = hessian_estimate_standard,
                          )
 
     T = promote_type(Float64, eltype(guess))
