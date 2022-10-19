@@ -12,10 +12,7 @@ function estimate_g(f, z, bk,
     for _ in 1:Nresampling
         Δ = rand(samples, Nvars)
 
-        zp = z + bk*Δ
-        zm = z - bk*Δ
-
-        df = f(zp)/bk - f(zm)/bk
+        df = f(@. z + bk*Δ)/bk - f(@. z - bk*Δ)/bk
 
         @. g += 0.5df * Δ
     end
