@@ -16,7 +16,7 @@ hessian_estimate_standard(h, Δ1, Δ2) = @. h * Δ1 * Δ2'
 hessian_estimate_scalar(h, Δ1, Δ2) = h
 
 # Hessian postprocessing
-function hessian_postprocess_gidi(H, H0, iter,
+function hessian_postprocess_gidi(H, H0, iter;
                                   regularization=1e-3)
     H = hermitize(H)
     H = regularize(H, regularization)
@@ -25,7 +25,7 @@ function hessian_postprocess_gidi(H, H0, iter,
     return H
 end
 
-function hessian_postprocess_spall(H, H0, iter,
+function hessian_postprocess_spall(H, H0, iter;
                                    regularization=1e-3)
     H = hermitize(H)
     H = collect_inertia(H, H0, iter)
