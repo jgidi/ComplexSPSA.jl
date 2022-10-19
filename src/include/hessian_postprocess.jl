@@ -3,7 +3,7 @@ hermitize(H) = 0.5(H + H')
 
 # Regularization
 ## Standard
-regularize(H::AbstractMatrix, eps) = sqrt(H'H + eps*I(size(H, 1)))
+regularize(H::AbstractMatrix, eps) = sqrt(H'H + UniformScaling(eps))
 ## Scalar
 regularize(h::Real, eps) = sqrt(abs2(h) + eps)
 
