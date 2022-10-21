@@ -3,9 +3,9 @@ hermitize(H) = 0.5(H + H')
 
 # Regularization
 ## Standard
-regularize(H::AbstractMatrix, eps) = sqrt(H'H + UniformScaling(eps))
+regularize(H::AbstractMatrix, eps) = sqrt(H'H) + UniformScaling(eps)
 ## Scalar
-regularize(h::Real, eps) = sqrt(abs2(h) + eps)
+regularize(h::Real, eps) = abs(h) + eps
 
 
 # Inertia collection
