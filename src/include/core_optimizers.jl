@@ -72,7 +72,7 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
 
     # Initial Hessian
     if isnothing(initial_hessian)
-        H0 = Matrix{T}(I, Nvars, Nvars)
+        H0 = UniformScaling(one(T))
     end
 
     # Obtain an initial Hessian estimate by measurement
