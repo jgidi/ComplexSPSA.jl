@@ -113,6 +113,14 @@ function CSPSA_QN(f::Function, fidelity::Function,
                            kwargs...)
 end
 
+## Full
+function CSPSA2_full(f::Function, guess::AbstractVector, Niters; kwargs...)
+    return _preconditioned(f, ComplexF64.(guess), Niters;
+                           hessian_estimate=hessian_estimate_full,
+                           apply_hessian=apply_hessian_full,
+                           kwargs...)
+end
+
 ## Scalars
 function SPSA_QN_scalar(f::Function, fidelity::Function,
                         guess::AbstractVector{<:Real}, Niters; kwargs...)
