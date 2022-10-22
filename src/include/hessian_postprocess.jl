@@ -38,4 +38,4 @@ end
 
 # Hessian application to gradient
 apply_hessian(g, H0) = H0 \ g
-apply_hessian_full(g, H0) = (H0 \ vcat(g, conj(g))[1:length(g)]
+apply_hessian_full(g, H0) = (H0 \ vcat(g, conj(g)))[1:length(g)]
