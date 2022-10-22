@@ -10,10 +10,11 @@ export SPSA_on_complex, CSPSA                     # First order
 
 export SPSA2_on_complex, CSPSA2                   # Second order
 export SPSA2_scalar_on_complex, CSPSA2_scalar     # Scalar Second order
-export MCSPSA2, CSPSA2_full                       #
+export CSPSA2_full                                # Second order full
 
 export SPSA_QN_on_complex, CSPSA_QN               # Natural gradient
 export SPSA_QN_scalar_on_complex, CSPSA_QN_scalar # Scalar Natural gradient
+export CSPSA_QN_full                              # Natural gradient full
 
 # External dependencies
 using QuantumToolkit
