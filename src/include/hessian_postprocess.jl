@@ -6,7 +6,8 @@ hermitize(H) = 0.5(H + H')
 regularize(H::AbstractMatrix, eps) = sqrt(H'H) + UniformScaling(eps)
 regularize_insquare(H::AbstractMatrix, eps) = sqrt(H'H + UniformScaling(eps))
 ## Scalar
-regularize(h::Real, eps) = abs(h) + eps
+regularize(h::Number, eps) = abs(h) + eps
+regularize_insquare(h::Number, eps) = sqrt(abs2(h) + eps)
 
 
 # Inertia collection
