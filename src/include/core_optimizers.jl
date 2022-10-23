@@ -70,6 +70,9 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
                          a2 = 1.0,
                          a = gains[:a], b = gains[:b],
                          A = gains[:A], s = gains[:s], t = gains[:t],
+                         blocking = false,
+                         blocking_tol = 0.0,
+                         blocking_Ncalibrate = 0,
                          Ncalibrate = 0,
                          Nresampling = 1,
                          postprocess = identity,
@@ -102,6 +105,12 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
                             Ncalibrate, hessian_estimate)
     end
 
+    # Blocking
+    fz = -sign * Inf
+    if blocking_Ncalibrate > 1
+        blocking_tol = 2estimate_std(f, z, blocking_Ncalibrate)
+    end
+
     for iter in 1:Niters
         k = iter + initial_iter - 1
 
@@ -126,8 +135,18 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
             ak *= a
         end
 
-        # Iteration
-        @. z += sign * ak * g
+        # Updated variable
+        z_next = @. z + sign*ak*g
+
+        # Blocking
+        if blocking
+            fz_prev = fz
+            fz = f(z)
+            if fz * sign > fz_prev * sign - blocking_tol
+                # Make update
+                z = z_next
+            end
+        end
 
         # Apply posibble inter-iteration postprocessing
         z .= postprocess(z)
