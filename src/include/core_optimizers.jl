@@ -16,6 +16,7 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
     acc = Array{T}(undef, Nvars, Niters+1)
     acc[:, 1] = z
 
+    # Gain calibration
     if Ncalibrate > 0
         bk = decaying_pert_magnitude(b, t, initial_iter)
         a = calibrate_gain_a(f, z, a, bk, Ncalibrate)
