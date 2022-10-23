@@ -55,7 +55,7 @@ function estimate_gH(f::Function, fidelity::Nothing, z,
         H = H .+ hessian_estimate(d2f, Δ1, Δ2)
     end
     g ./= Nresampling
-    H ./= Nresampling
+    H /= Nresampling
 
     return g, H
 end
