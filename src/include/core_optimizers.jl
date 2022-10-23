@@ -3,6 +3,9 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
                       initial_iter = 1,
                       a = gains[:a], b = gains[:b],
                       A = gains[:A], s = gains[:s], t = gains[:t],
+                      blocking = false,
+                      blocking_tol = 0.0,
+                      blocking_Ncalibrate = 0,
                       Ncalibrate = 0,
                       Nresampling = 1,
                       postprocess = identity,
@@ -22,6 +25,12 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
         a = calibrate_gain_a(f, z, a, bk, Ncalibrate)
     end
 
+    # Blocking
+    fz = -sign * Inf
+    if blocking_Ncalibrate > 1
+        blocking_tol = 2estimate_std(f, z, blocking_Ncalibrate)
+    end
+
     for iter in 1:Niters
         k = iter + initial_iter - 1
 
@@ -31,12 +40,22 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
         # Estimates of the gradient and Hessian
         g = estimate_g(f, z, bk, Nresampling)
 
-        # update variable
-        @. z += sign * ak * g
+        # Updated variable
+        z_next = @. z + sign*ak*g
+
+        # Blocking
+        if blocking
+            fz_prev = fz
+            fz = f(z)
+            if fz * sign > fz_prev * sign - blocking_tol
+                # Make update
+                z = z_next
+            end
+        end
 
         # postprocessing
         z .= postprocess(z)
-
+    
         # Copy current values to the accumulator
         acc[:, iter+1] = z
     end
