@@ -57,7 +57,7 @@ function calibrate_gain_a(f, z, a_target, bk, Ncalibrate;
     end
 
     # Average gradient magnitude
-    avg /= (2*bk*Ncalibrate)
+    avg /= 2bk * Ncalibrate
 
     # Calibrated value of a
     if modelspace
