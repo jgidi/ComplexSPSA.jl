@@ -78,7 +78,8 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
     # Obtain an initial Hessian estimate by measurement
     if Ncalibrate > 0
         bk = decaying_pert_magnitude(b, t, initial_iter)
-        g, H0 = estimate_gH(f, fidelity, z, bk, bk, Ncalibrate)
+        g, H0 = estimate_gH(f, fidelity, z, bk, bk,
+                            Ncalibrate, hessian_estimate)
     end
 
     for iter in 1:Niters
@@ -88,7 +89,8 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
         bk = decaying_pert_magnitude(b, t, k)
 
         # Estimates of the gradient and Hessian
-        g, H = estimate_gH(f, fidelity, z, bk, bk, Nresampling)
+        g, H = estimate_gH(f, fidelity, z, bk, bk,
+                           Nresampling, hessian_estimate)
 
         # Second order usually requires fixing the Hessian
         H0 = hessian_postprocess(H, H0, iter,
