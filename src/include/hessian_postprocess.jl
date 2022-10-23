@@ -10,7 +10,7 @@ regularize(h::Real, eps) = abs(h) + eps
 
 
 # Inertia collection
-collect_inertia(H, H0, iter) = @. (iter*H0 + H) / (iter + 1)
+collect_inertia(H, H0, iter) = (iter*H0 + H) / (iter + 1)
 
 # Hessian construction
 hessian_estimate_standard(h, Δ1, Δ2) = @. h * Δ1 * Δ2'
