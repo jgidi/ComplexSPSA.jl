@@ -19,6 +19,10 @@ export CSPSA_QN_full                              # Natural gradient full
 # External dependencies
 using QuantumToolkit
 using LinearAlgebra, Statistics
+export SPSA                     # Real
+export SPSA2                    # Real
+export SPSA_QN                                    # Real
+export SPSA_QN_scalar                             # Real
 
 include("include/gains.jl")
 include("include/estimates.jl")
