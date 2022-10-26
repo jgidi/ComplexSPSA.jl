@@ -1,7 +1,6 @@
 module ComplexSPSA
 
 # External dependencies
-using QuantumToolkit
 using LinearAlgebra, Statistics
 
 # # Exported
