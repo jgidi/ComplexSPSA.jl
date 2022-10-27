@@ -75,9 +75,9 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
                          blocking_tol = 0.0,
                          blocking_Ncalibrate = 0,
                          learning_rate_Ncalibrate = 0,
+                         learning_rate_constant = false,
                          Nresampling = 1,
                          postprocess = identity,
-                         constant_learning_rate = false,
                          hessian_delay = 0,
                          initial_hessian = nothing,
                          regularization = 1e-3,
@@ -115,7 +115,7 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
     for iter in 1:Niters
         k = iter + initial_iter - 1
 
-        ak = constant_learning_rate ? 1.0 : decaying_learning_rate(1.0, A, s, k)
+        ak = learning_rate_constant ? 1.0 : decaying_learning_rate(1.0, A, s, k)
         bk = decaying_pert_magnitude(b, t, k)
 
         # Estimates of the gradient and Hessian
