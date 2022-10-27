@@ -1,39 +1,5 @@
 # First order implementations
 
-first_order_kwargs = "\
-sign = -1,
-initial_iter = 1,
-a = gains[:a], b = gains[:b],
-A = gains[:A], s = gains[:s], t = gains[:t],
-blocking = false,
-blocking_tol = 0.0,
-blocking_Ncalibrate = 0,
-Ncalibrate = 0,
-Nresampling = 1,
-postprocess = identity,
-"
-
-preconditioned_kwargs = "\
-sign = -1,
-initial_iter = 1,
-a2 = 1.0,
-a = gains[:a], b = gains[:b],
-A = gains[:A], s = gains[:s], t = gains[:t],
-blocking = false,
-blocking_tol = 0.0,
-blocking_Ncalibrate = 0,
-Ncalibrate = 0,
-Nresampling = 1,
-postprocess = identity,
-constant_learning_rate = false,
-hessian_delay = 0,
-initial_hessian = nothing,
-regularization = 1e-3,
-apply_hessian = apply_hessian,
-hessian_estimate = hessian_estimate,
-hessian_postprocess = hessian_postprocess,
-"
-
 """
     SPSA(f::Function, guess::AbstractVector{<:Real}, Niters; kwargs...)
 
