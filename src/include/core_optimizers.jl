@@ -26,7 +26,7 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
     end
 
     # Blocking
-    fz = -sign * Inf
+    fz_prev = -sign * Inf
     if blocking_Ncalibrate > 1
         blocking_tol = 2estimate_std(f, z, blocking_Ncalibrate)
     end
@@ -45,9 +45,10 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
 
         # Blocking
         if blocking
-            fz_prev = fz
-            fz = f(z)
-            if fz * sign > fz_prev * sign - blocking_tol
+            fz_new = f(z)
+            if fz_new * sign > fz_prev * sign - blocking_tol
+                # Accept new value of f(z)
+                fz_prev = fz_new
                 # Make update
                 z = z_next
             end
@@ -106,7 +107,7 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
     end
 
     # Blocking
-    fz = -sign * Inf
+    fz_prev = -sign * Inf
     if blocking_Ncalibrate > 1
         blocking_tol = 2estimate_std(f, z, blocking_Ncalibrate)
     end
@@ -140,9 +141,10 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
 
         # Blocking
         if blocking
-            fz_prev = fz
-            fz = f(z)
-            if fz * sign > fz_prev * sign - blocking_tol
+            fz_new = f(z)
+            if fz_new * sign > fz_prev * sign - blocking_tol
+                # Accept new value of f(z)
+                fz_prev = fz_new
                 # Make update
                 z = z_next
             end
