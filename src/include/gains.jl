@@ -43,11 +43,12 @@ gains = Dict(
 decaying_learning_rate(a, A, s, k) =  a / (k + A)^s
 decaying_pert_magnitude(b, t, k) = b / k^t
 
-# TODO: verify
-function calibrate_gain_a(f, z, target_a, bk, Ncalibrate)
+function calibrate_gain_a(f, z, a_target, bk, Ncalibrate;
+                          modelspace=false)
 
-    avg = zero(z)
-    samples = perturbation_samples(eltype(z))
+    T = eltype(z)
+    avg = zero(T)
+    samples = perturbation_samples(T)
     for _ in 1:Ncalibrate
         Δ = rand(samples, length(z))
         df = f(@. z + bk*Δ) - f(@. z - bk*Δ)
@@ -56,11 +57,20 @@ function calibrate_gain_a(f, z, target_a, bk, Ncalibrate)
     end
 
     # Average gradient magnitude
-    avg /= (2*bk*Ncalibrate)
+    avg /= 2bk * Ncalibrate
 
     # Calibrated value of a
-    a_new = target_a / avg
+    if modelspace
+        a_new = a_target / avg^2
+    else
+        a_new = a_target / avg
+    end
 
-    # TODO verify if calibration was successful
+    # Check calibration
+    if a_new < 1e-10
+        println("Calibration for \'a\' failed. Using target value, ", a_target)
+        a_new = a_target
+    end
+
     return a_new
 end

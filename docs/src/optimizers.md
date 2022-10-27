@@ -1,56 +1,110 @@
 # Optimizers
 
-This package provides a set optimizers for real-valued functions of a number of complex variables, $f:\mathbb{C}^N\to\mathbb{R}$, which we subdivide into three categories
+This package provides an interface to the set optimizers presented in ["Stochastic optimization algorithms for quantum applications"](https://arxiv.org/abs/2203.06044) (Gidi _et. al._, 2022).
 
-## First-order optimizers
+In the publication two groups of gain parameters are mentioned:
 
-To reach a local minimum of $f(\bm z)$ with $\bm z \in \mathbb{C}^N$, this methods start from some seed value of $\bm z = \bm z^0$ and iterate over $k$ performing a first-order update,
-```math
-\bm z^{k+1} = \bm z^k - a^k \bm g^{k}(\bm z^k, b^k),
-```
-
-where $\bm g^k(\bm z^k, b^k)$ is a randomly directed finite-difference estimate of the gradient of $f$, $\partial f / \partial\bm{z}$, and
-```math
-\begin{aligned}
-a^k &= \frac{a}{(k + A + 1)^s}, \\
-b^k &= \frac{b}{(k + 1)^t},
-\end{aligned}
-```
-are convergence factors determined by the input gain parameters $a$, $b$, $A$, $s$, and $t$.
-
-By default, standard gains are defined and used package-wide from the dictionary [`ComplexSPSA.gains`](@ref),
+The default goup is
 ```@docs
 ComplexSPSA.gains
 ```
-where they can be changed on run-time, and the optimizers will use their value as defined at the moment when they are called.
 
-### SPSA on complex
+and the asymptotic gains are also provided as
+```@docs
+ComplexSPSA.gains_asymptotic
+```
 
-In particular, two first-order methods are implemented. The first, called [`SPSA_on_complex`](@ref), is based on the [SPSA optimization method](https://www.jhuapl.edu/spsa/) for real variables of real functions, and works by treating each complex variable as a pair of real variables. This method is commonly used for the minimization of real functions of complex variables, but may result cumbersome on domains where the complex algebra is natively involved.
+The optimizers are subdivided into two categories:
+
+## First-order optimizers
+
+
+### Options
+
+Optimizers of this category accept the arguments:
+
+- `sign`: Specifies if the objective function should be maximized (`sign=1`) or minimized (`sign=-1`). Default value is `-1`.
+- `initial_iter`: Determines the initial value of the iteration index `k`.
+- `a`, `b`, `A`, `s` and `t`: The gain parameters. Default values are contained in the dictionary [`ComplexSPSA.gains`](@ref).
+- `learning_rate_constant`: Specifies if the learning rate should be decaying in the iteration number `a / (k + A)^s` (`learning_rate_constant=false`) or fixed to `a` across all iterations (`learning_rate_constant=true`). Default value is `false`.
+- `learning_rate_Ncalibrate`: Integer indicating how many samples to evaluate from the objective function to calibrate the leraning rate `a` as proposed by [Kandala _et. al._ (2017)](https://arxiv.org/pdf/1704.05018.pdf). Default value is `0` (no calibration).
+- `blocking`: Allows to accept only variable updates which improve the value of the function up to certain tolerance. Default value is `false`.
+- `blocking_tol`: The tolerance used for blocking. Default value is `0.0`.
+- `blocking_Ncalibrate`: Is an integer representing how many evaluations of the function on the seed value should be used to estimate its standard deviation. If `blocking_Ncalibrate > 1`, then `blocking_tol` is overriden with the value of twice the standard deviation. The default value of `blocking_Ncalibrate` is `0`.
+- `Nresampling`: Integer indicating how many times to estimate the gradient to use an average at each iteration. Default value is `1`.
+- `postprocess`: A function which takes the array of variables `z` at the end of each iteration, and returns a postprocessed version of it. The default value is `identity`, which returns its arguments identically.
+
+### Optimizers
+
+The optimizers are
+
+```@docs
+SPSA
+```
+
 ```@docs
 SPSA_on_complex
 ```
 
-### CSPSA
-
-A second method called [`CSPSA`](@ref) is also provided, which has the advantage of having being formulated in terms of complex variables, thus resulting more natural in natively-complex domains.
 ```@docs
 CSPSA
 ```
 
+## Preconditioned optimizers
 
-## Second-order optimizers
+### Options
+
+All of the options for first-order optimizers may also be provided. Additionally, preconditioned optimizers take the following options:
+
+- `initial_hessian`: Allows to pass a guess for the initial value of the Hessian estimator. If not given, an Identity matrix is used.
+- `hessian_delay`: An integer indicating how many iterations should be performed using a first-order optimization rule (while collecting information for the Hessian estimator) before using the Hessian estimator to precondition the gradient estimator. The default value is `0`.
+- `a2`: Mimics the first-order gain parameter `a` but for preconditioned iterations. Default value is `1.0`. As in the first-order case, the keyword `learning_rate_constant` may be used to control wether the learning rate should be constant or decaying on the iteration number.
+- `regularization`: A real number indicating the perturbation used on the Hessian regularization. The default value is `0.001`.
+
+### Optimizers
+
+Two categories are mixed within the preconditioned algorithms: Second order and Quantum Natural methods.
+
+#### Second order
+
+Second order methods use additional measurements of the objective function to estimate its Hessian matrix. This methods are:
+
+```@docs
+SPSA2
+```
 
 ```@docs
 SPSA2_on_complex
 ```
 
-
 ```@docs
 CSPSA2
 ```
 
-## Natural gradient
+```@docs
+CSPSA2_full
+```
+
+```@docs
+SPSA2_scalar
+```
+```@docs
+SPSA2_scalar_on_complex
+```
+
+```@docs
+CSPSA2_scalar
+```
+
+#### Quantum Natural
+
+Quantum Natural methods, while following a first-order update rule, consider the metric of the problem to precondition the gradient estimate.
+In particular, the following optimizers require the fidelity $ \mathscr{fidelity}(z, z')$ to estimate the Fubini-Study metric:
+
+
+```@docs
+SPSA_QN
+```
 
 ```@docs
 SPSA_QN_on_complex
@@ -58,6 +112,14 @@ SPSA_QN_on_complex
 
 ```@docs
 CSPSA_QN
+```
+
+```@docs
+CSPSA_QN_full
+```
+
+```@docs
+SPSA_QN_scalar
 ```
 
 ```@docs

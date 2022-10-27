@@ -1,6 +1,7 @@
 perturbation_samples(::Type{<:Real}) = Float64.((-1, 1))
 perturbation_samples(::Type{<:Complex}) = ComplexF64.((-1, 1, -im, im))
 
+# First order
 function estimate_g(f, z, bk,
                     Nresampling::Integer = 1,
                     )
@@ -55,7 +56,7 @@ function estimate_gH(f::Function, fidelity::Nothing, z,
         H = H .+ hessian_estimate(d2f, Δ1, Δ2)
     end
     g ./= Nresampling
-    H ./= Nresampling
+    H /= Nresampling
 
     return g, H
 end
@@ -96,7 +97,10 @@ function estimate_gH(f::Function, fidelity::Function, z,
         H = H .+ hessian_estimate(d2f, Δ1, Δ2)
     end
     g ./= Nresampling
-    H ./= Nresampling
+    H /= Nresampling
 
     return g, H
 end
+
+# Estimate standard deviation
+estimate_std(f, z, N) = std([f(z) for _ in 1:N])

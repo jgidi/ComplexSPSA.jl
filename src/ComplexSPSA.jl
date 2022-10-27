@@ -1,23 +1,36 @@
 module ComplexSPSA
 
+# External dependencies
+using LinearAlgebra, Statistics
+
 # # Exported
 # # Qiskit wrapper submodule
 # export Qiskit
 # export PaperPlot
 
-# Optimzers
-export SPSA_on_complex, CSPSA                     # First order
+# Optimzer exports
 
-export SPSA2_on_complex, CSPSA2                   # Second order
-export SPSA2_scalar_on_complex, CSPSA2_scalar     # Scalar Second order
-export MCSPSA2, CSPSA2_full                       #
+# First order
+export SPSA                     # Real
+export SPSA_on_complex, CSPSA   # Complex
 
-export SPSA_QN_on_complex, CSPSA_QN               # Natural gradient
-export SPSA_QN_scalar_on_complex, CSPSA_QN_scalar # Scalar Natural gradient
+# Second order
+export SPSA2                    # Real
+export SPSA2_on_complex, CSPSA2 # Complex
+# Scalar
+export SPSA2_scalar                           # Real
+export SPSA2_scalar_on_complex, CSPSA2_scalar # Complex
+# Full
+export CSPSA2_full              # Only valid for Complex args
 
-# External dependencies
-using QuantumToolkit
-using LinearAlgebra, Statistics
+# Quantum Natural
+export SPSA_QN                                    # Real
+export SPSA_QN_on_complex, CSPSA_QN               # Complex
+# Scalar
+export SPSA_QN_scalar                             # Real
+export SPSA_QN_scalar_on_complex, CSPSA_QN_scalar # Complex
+# Full
+export CSPSA_QN_full                              # Only valid for complex args
 
 include("include/gains.jl")
 include("include/estimates.jl")
