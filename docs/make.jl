@@ -9,18 +9,14 @@ Documenter.makedocs(
     build = "build",
     clean = true,
     doctest = true,
-    modules = Module[ComplexSPSA, ComplexSPSA.Qiskit],
+    modules = Module[ComplexSPSA],
     highlightsig = true,
     sitename = "ComplexSPSA.jl",
     expandfirst = [],
     pages = [
         "Introduction" => "index.md",
         "Optimizers" => "optimizers.md",
-        "Examples" => "examples.md",
-        "Qiskit Wrapper" => [
-            "Introduction" => "qiskit/intro.md",
-            "Optimizers"   => "qiskit/optimizers.md",
-        ],
+        # "Examples" => "examples.md",
         "Other tools" => "tools.md",
     ],
 )
