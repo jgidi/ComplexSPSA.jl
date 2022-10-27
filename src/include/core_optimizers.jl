@@ -3,6 +3,7 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
                       initial_iter = 1,
                       a = gains[:a], b = gains[:b],
                       A = gains[:A], s = gains[:s], t = gains[:t],
+                      learning_rate_constant = false,
                       learning_rate_Ncalibrate = 0,
                       blocking = false,
                       blocking_tol = 0.0,
@@ -34,7 +35,7 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
     for iter in 1:Niters
         k = iter + initial_iter - 1
 
-        ak = decaying_learning_rate(a, A, s, k)
+        ak = learning_rate_constant ? a : decaying_learning_rate(a, A, s, k)
         bk = decaying_pert_magnitude(b, t, k)
 
         # Estimates of the gradient and Hessian
