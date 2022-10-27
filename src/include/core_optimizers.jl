@@ -3,10 +3,10 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
                       initial_iter = 1,
                       a = gains[:a], b = gains[:b],
                       A = gains[:A], s = gains[:s], t = gains[:t],
+                      learning_rate_Ncalibrate = 0,
                       blocking = false,
                       blocking_tol = 0.0,
                       blocking_Ncalibrate = 0,
-                      Ncalibrate = 0,
                       Nresampling = 1,
                       postprocess = identity,
                       )
@@ -20,9 +20,9 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
     acc[:, 1] = z
 
     # Gain calibration
-    if Ncalibrate > 0
+    if learning_rate_Ncalibrate > 0
         bk = decaying_pert_magnitude(b, t, initial_iter)
-        a = calibrate_gain_a(f, z, a, bk, Ncalibrate)
+        a = calibrate_gain_a(f, z, a, bk, learning_rate_Ncalibrate)
     end
 
     # Blocking
@@ -73,7 +73,7 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
                          blocking = false,
                          blocking_tol = 0.0,
                          blocking_Ncalibrate = 0,
-                         Ncalibrate = 0,
+                         learning_rate_Ncalibrate = 0,
                          Nresampling = 1,
                          postprocess = identity,
                          constant_learning_rate = false,
@@ -99,10 +99,10 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
     end
 
     # Obtain an initial Hessian estimate by measurement
-    if Ncalibrate > 0
+    if learning_rate_Ncalibrate > 0
         bk = decaying_pert_magnitude(b, t, initial_iter)
         g, H0 = estimate_gH(f, fidelity, z, bk, bk,
-                            Ncalibrate, hessian_estimate)
+                            learning_rate_Ncalibrate, hessian_estimate)
     end
 
     # Blocking
