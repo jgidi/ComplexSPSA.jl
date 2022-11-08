@@ -31,7 +31,7 @@ Optimizers of this category accept the arguments:
 - `blocking`: Allows to accept only variable updates which improve the value of the function up to certain tolerance. Default value is `false`.
 - `blocking_tol`: The tolerance used for blocking. Default value is `0.0`.
 - `blocking_Ncalibrate`: Is an integer representing how many evaluations of the function on the seed value should be used to estimate its standard deviation. If `blocking_Ncalibrate > 1`, then `blocking_tol` is overriden with the value of twice the standard deviation. The default value of `blocking_Ncalibrate` is `0`.
-- `Nresampling`: Integer indicating how many times to estimate the gradient to use an average at each iteration. Default value is `1`.
+- `resamplings`: Dictionary containing the number of samples of the gradient estimator to average at each iteration. It must contain the key `"default"` with the value which will be used for iterations without explicit specification. By default, `resamplings = Dict("default" => 1)`.
 - `postprocess`: A function which takes the array of variables `z` at the end of each iteration, and returns a postprocessed version of it. The default value is `identity`, which returns its arguments identically.
 
 ### Optimizers
@@ -54,9 +54,10 @@ CSPSA
 
 ### Options
 
-All of the options for first-order optimizers may also be provided. Additionally, preconditioned optimizers take the following options:
+All of the options for first-order optimizers, excepting `learning_rate_Ncalibrate`, may also be provided. Additionally, preconditioned optimizers take the following options:
 
 - `initial_hessian`: Allows to pass a guess for the initial value of the Hessian estimator. If not given, an Identity matrix is used.
+- `resamplings`: Dictionary containing the number of samples of the gradient estimator to average at each iteration. It must contain the key `"default"` with the value which will be used for iterations without explicit specification. If `resamplings[0]` is defined, it will be used to compute an estimator as the initial Hessian, overwriting the value possibly provided with `initial_hessian.` By default, `resamplings = Dict("default" => 1)`.
 - `hessian_delay`: An integer indicating how many iterations should be performed using a first-order optimization rule (while collecting information for the Hessian estimator) before using the Hessian estimator to precondition the gradient estimator. The default value is `0`.
 - `a2`: Mimics the first-order gain parameter `a` but for preconditioned iterations. Default value is `1.0`. As in the first-order case, the keyword `learning_rate_constant` may be used to control wether the learning rate should be constant or decaying on the iteration number.
 - `regularization`: A real number indicating the perturbation used on the Hessian regularization. The default value is `0.001`.

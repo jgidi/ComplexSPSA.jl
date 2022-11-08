@@ -8,7 +8,7 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
                       blocking = false,
                       blocking_tol = 0.0,
                       blocking_Ncalibrate = 0,
-                      Nresampling = 1,
+                      resamplings = Dict("default" => 1),
                       postprocess = identity,
                       )
 
@@ -39,6 +39,7 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
         bk = decaying_pert_magnitude(b, t, k)
 
         # Estimates of the gradient and Hessian
+        Nresampling = haskey(resamplings, iter) ? resamplings[iter] : resamplings["default"]
         g = estimate_g(f, z, bk, Nresampling)
 
         # Updated variable
@@ -75,9 +76,8 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
                          blocking = false,
                          blocking_tol = 0.0,
                          blocking_Ncalibrate = 0,
-                         learning_rate_Ncalibrate = 0,
                          learning_rate_constant = false,
-                         Nresampling = 1,
+                         resamplings = Dict("default" => 1),
                          postprocess = identity,
                          hessian_delay = 0,
                          initial_hessian = nothing,
@@ -101,10 +101,10 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
     end
 
     # Obtain an initial Hessian estimate by measurement
-    if learning_rate_Ncalibrate > 0
+    if haskey(resamplings, 0)
+        Ncalibrate = resamplings[0]
         bk = decaying_pert_magnitude(b, t, initial_iter)
-        g, H0 = estimate_gH(f, fidelity, z, bk, bk,
-                            learning_rate_Ncalibrate, hessian_estimate)
+        g, H0 = estimate_gH(f, fidelity, z, bk, bk, Ncalibrate, hessian_estimate)
     end
 
     # Blocking
@@ -120,8 +120,8 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
         bk = decaying_pert_magnitude(b, t, k)
 
         # Estimates of the gradient and Hessian
-        g, H = estimate_gH(f, fidelity, z, bk, bk,
-                           Nresampling, hessian_estimate)
+        Nresampling = haskey(resamplings, iter) ? resamplings[iter] : resamplings["default"]
+        g, H = estimate_gH(f, fidelity, z, bk, bk, Nresampling, hessian_estimate)
 
         # Second order usually requires fixing the Hessian
         H0 = hessian_postprocess(H, H0, iter,
