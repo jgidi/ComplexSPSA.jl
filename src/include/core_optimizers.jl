@@ -76,7 +76,6 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
                          blocking = false,
                          blocking_tol = 0.0,
                          blocking_Ncalibrate = 0,
-                         learning_rate_Ncalibrate = 0,
                          learning_rate_constant = false,
                          resamplings = Dict("default" => 1),
                          postprocess = identity,
@@ -102,10 +101,10 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
     end
 
     # Obtain an initial Hessian estimate by measurement
-    if learning_rate_Ncalibrate > 0
+    if haskey(resamplings, 0)
+        Ncalibrate = resamplings[0]
         bk = decaying_pert_magnitude(b, t, initial_iter)
-        g, H0 = estimate_gH(f, fidelity, z, bk, bk,
-                            learning_rate_Ncalibrate, hessian_estimate)
+        g, H0 = estimate_gH(f, fidelity, z, bk, bk, Ncalibrate, hessian_estimate)
     end
 
     # Blocking
