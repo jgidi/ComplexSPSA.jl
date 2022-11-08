@@ -46,8 +46,8 @@ decaying_pert_magnitude(b, t, k) = b / k^t
 function calibrate_gain_a(f, z, a_target, bk, Ncalibrate;
                           modelspace=false)
 
+    avg = 0.0
     T = eltype(z)
-    avg = zero(T)
     samples = perturbation_samples(T)
     for _ in 1:Ncalibrate
         Δ = rand(samples, length(z))
