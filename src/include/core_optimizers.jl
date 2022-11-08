@@ -8,7 +8,7 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
                       blocking = false,
                       blocking_tol = 0.0,
                       blocking_Ncalibrate = 0,
-                      Nresampling = 1,
+                      resamplings = Dict("default" => 1),
                       postprocess = identity,
                       )
 
@@ -39,6 +39,7 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
         bk = decaying_pert_magnitude(b, t, k)
 
         # Estimates of the gradient and Hessian
+        Nresampling = haskey(resamplings, iter) ? resamplings[iter] : resamplings["default"]
         g = estimate_g(f, z, bk, Nresampling)
 
         # Updated variable
