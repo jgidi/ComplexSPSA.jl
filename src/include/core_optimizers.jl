@@ -54,6 +54,8 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
                 # Make update
                 z = z_next
             end
+        else
+            z = z_next
         end
 
         # postprocessing
@@ -149,6 +151,8 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
                 # Make update
                 z = z_next
             end
+        else
+            z = z_next
         end
 
         # Apply posibble inter-iteration postprocessing
