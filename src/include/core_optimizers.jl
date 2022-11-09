@@ -47,10 +47,10 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
 
         # Blocking
         if blocking
-            fz_new = f(z)
-            if fz_new * sign > fz_prev * sign - blocking_tol
+            fz_next = f(z)
+            if fz_next*sign > fz_prev*sign - blocking_tol
                 # Accept new value of f(z)
-                fz_prev = fz_new
+                fz_prev = fz_next
                 # Make update
                 z = z_next
             end
