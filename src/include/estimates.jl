@@ -103,4 +103,4 @@ function estimate_gH(f::Function, fidelity::Function, z,
 end
 
 # Estimate standard deviation
-estimate_std(f, z, N) = std([f(z) for _ in 1:N])
+estimate_std(f, z, N) = std(f(z) for _ in 1:N)
