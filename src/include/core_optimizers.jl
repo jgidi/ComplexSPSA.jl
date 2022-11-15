@@ -5,6 +5,7 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
                       A = gains[:A], s = gains[:s], t = gains[:t],
                       learning_rate_constant = false,
                       learning_rate_Ncalibrate = 0,
+                      perturbation_constant = false,
                       blocking = false,
                       blocking_tol = 0.0,
                       blocking_Ncalibrate = 0,
@@ -22,7 +23,7 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
 
     # Gain calibration
     if learning_rate_Ncalibrate > 0
-        bk = decaying_pert_magnitude(b, t, initial_iter)
+        bk = perturbation_constant ? b : decaying_pert_magnitude(b, t, initial_iter)
         a = calibrate_gain_a(f, z, a, bk, learning_rate_Ncalibrate)
     end
 
@@ -36,7 +37,7 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
         k = iter + initial_iter - 1
 
         ak = learning_rate_constant ? a : decaying_learning_rate(a, A, s, k)
-        bk = decaying_pert_magnitude(b, t, k)
+        bk = perturbation_constant ? b : decaying_pert_magnitude(b, t, k)
 
         # Estimates of the gradient and Hessian
         Nresampling = haskey(resamplings, iter) ? resamplings[iter] : resamplings["default"]
