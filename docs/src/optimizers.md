@@ -28,6 +28,7 @@ Optimizers of this category accept the arguments:
 - `a`, `b`, `A`, `s` and `t`: The gain parameters. Default values are contained in the dictionary [`ComplexSPSA.gains`](@ref).
 - `learning_rate_constant`: Specifies if the learning rate should be decaying in the iteration number `a / (k + A)^s` (`learning_rate_constant=false`) or fixed to `a` across all iterations (`learning_rate_constant=true`). Default value is `false`.
 - `learning_rate_Ncalibrate`: Integer indicating how many samples to evaluate from the objective function to calibrate the leraning rate `a` as proposed by [Kandala _et. al._ (2017)](https://arxiv.org/pdf/1704.05018.pdf). Default value is `0` (no calibration).
+- `perturbation_constant`: Specifies if the perturbation step for the finite-difference approximation should be decaying in the iteration number `b / k^t` (`perturbation_constant=false`) or fixed to `b` across all iterations (`perturbation_constant=true`). Default value is `false`.
 - `blocking`: Allows to accept only variable updates which improve the value of the function up to certain tolerance. Default value is `false`.
 - `blocking_tol`: The tolerance used for blocking. Default value is `0.0`.
 - `blocking_Ncalibrate`: Is an integer representing how many evaluations of the function on the seed value should be used to estimate its standard deviation. If `blocking_Ncalibrate > 1`, then `blocking_tol` is overriden with the value of twice the standard deviation. The default value of `blocking_Ncalibrate` is `0`.
