@@ -80,6 +80,7 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
                          blocking_tol = 0.0,
                          blocking_Ncalibrate = 0,
                          learning_rate_constant = false,
+                         perturbation_constant = false,
                          resamplings = Dict("default" => 1),
                          postprocess = identity,
                          hessian_delay = 0,
@@ -106,7 +107,7 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
     # Obtain an initial Hessian estimate by measurement
     if haskey(resamplings, 0)
         Ncalibrate = resamplings[0]
-        bk = decaying_pert_magnitude(b, t, initial_iter)
+        bk = perturbation_constant ? b : decaying_pert_magnitude(b, t, initial_iter)
         g, H0 = estimate_gH(f, fidelity, z, bk, bk, Ncalibrate, hessian_estimate)
     end
 
@@ -120,7 +121,7 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
         k = iter + initial_iter - 1
 
         ak = learning_rate_constant ? 1.0 : decaying_learning_rate(1.0, A, s, k)
-        bk = decaying_pert_magnitude(b, t, k)
+        bk = perturbation_constant ? b : decaying_pert_magnitude(b, t, k)
 
         # Estimates of the gradient and Hessian
         Nresampling = haskey(resamplings, iter) ? resamplings[iter] : resamplings["default"]
