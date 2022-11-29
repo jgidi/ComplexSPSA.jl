@@ -25,16 +25,16 @@ function hessian_postprocess_gidi(H, H0, iter;
     H = regularize_insquare(H, regularization)
     H = collect_inertia(H, H0, iter)
 
-    return H
+    return H, H
 end
 
 function hessian_postprocess_spall(H, H0, iter;
                                    regularization=1e-3)
-    H = hermitize(H)
-    H = collect_inertia(H, H0, iter)
-    H = regularize(H, regularization)
+    H  = hermitize(H)
+    H0 = collect_inertia(H, H0, iter)
+    H  = regularize(H, regularization)
 
-    return H
+    return H, H0
 end
 
 # Hessian application to gradient

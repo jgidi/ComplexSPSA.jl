@@ -128,13 +128,13 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
         g, H = estimate_gH(f, fidelity, z, bk, bk, Nresampling, hessian_estimate)
 
         # Second order usually requires fixing the Hessian
-        H0 = hessian_postprocess(H, H0, iter,
-                                 regularization=regularization)
+        H, H0 = hessian_postprocess(H, H0, iter,
+                                    regularization=regularization)
 
         # Only apply Hessian after hessian_delay
         if iter > hessian_delay
             # Preconditioned iteration
-            g = apply_hessian(g, H0)
+            g = apply_hessian(g, H)
             ak *= a2
         else
             # First order iteration
