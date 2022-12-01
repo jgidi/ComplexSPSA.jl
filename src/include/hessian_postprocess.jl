@@ -32,7 +32,7 @@ function hessian_postprocess_spall(H, H0, iter;
                                    regularization=1e-3)
     H  = hermitize(H)
     H0 = collect_inertia(H, H0, iter)
-    H  = regularize(H, regularization)
+    H  = regularize(H0, regularization)
 
     return H, H0
 end
