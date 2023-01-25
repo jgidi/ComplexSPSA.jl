@@ -7,8 +7,8 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
                       learning_rate_Ncalibrate = 0,
                       perturbation_constant = false,
                       blocking = false,
-                      blocking_tol = 0.0,
-                      blocking_Ncalibrate = 0,
+                      blocking_tol = NaN,
+                      blocking_Ncalibrate = 25,
                       resamplings = Dict("default" => 1),
                       postprocess = identity,
                       )
@@ -29,7 +29,7 @@ function _first_order(f::Function, guess::AbstractVector, Niters;
 
     # Blocking
     fz_prev = -sign * Inf
-    if blocking_Ncalibrate > 1
+    if blocking && isnan(blocking_tol)
         blocking_tol = 2estimate_std(f, z, blocking_Ncalibrate)
     end
 
@@ -77,8 +77,8 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
                          a = gains[:a], b = gains[:b],
                          A = gains[:A], s = gains[:s], t = gains[:t],
                          blocking = false,
-                         blocking_tol = 0.0,
-                         blocking_Ncalibrate = 0,
+                         blocking_tol = NaN,
+                         blocking_Ncalibrate = 25,
                          learning_rate_constant = false,
                          perturbation_constant = false,
                          resamplings = Dict("default" => 1),
@@ -113,7 +113,7 @@ function _preconditioned(f::Function, guess::AbstractVector, Niters;
 
     # Blocking
     fz_prev = -sign * Inf
-    if blocking_Ncalibrate > 1
+    if blocking && isnan(blocking_tol)
         blocking_tol = 2estimate_std(f, z, blocking_Ncalibrate)
     end
 
