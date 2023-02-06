@@ -3,9 +3,6 @@ module ComplexSPSA
 # External dependencies
 using LinearAlgebra, Statistics
 
-# # Exported
-# # Qiskit wrapper submodule
-# export Qiskit
 # Optimzer exports
 
 # First order
@@ -36,9 +33,5 @@ include("include/core_optimizers.jl")
 include("include/hessian_postprocess.jl")
 include("include/implementations.jl")
 include("include/tools.jl")
-
-# # Qiskit wrapper submodule
-# include("include/qiskit/Qiskit.jl")
-# include("include/paperplot/PaperPlot.jl")
 
 end # module
