@@ -1,4 +1,5 @@
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://jgidi.github.io/ComplexSPSA.jl/dev)
+[![DOI](https://zenodo.org/badge/404573423.svg)](https://zenodo.org/badge/latestdoi/404573423)
 
 # Complex Simultaneous Perturbation Stochastic Approximation
 
