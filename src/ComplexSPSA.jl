@@ -28,7 +28,7 @@ export SPSA_QN_scalar_on_complex, CSPSA_QN_scalar # Complex
 export CSPSA_QN_full                              # Only valid for complex args
 
 include("include/gains.jl")
-include("include/estimates.jl")
+include("include/estimators.jl")
 include("include/core_optimizers.jl")
 include("include/hessian_postprocess.jl")
 include("include/implementations.jl")
