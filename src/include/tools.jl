@@ -1,3 +1,7 @@
+# Estimate standard deviation
+estimate_std(f, z, N) = std(f(z) for _ in 1:N)
+
+
 function real_problem_as_complex(fun_re, guess_re::AbstractVector{T}) where T <: Real
 
     fun_cx(x) = fun_re(reinterpret(Complex{T}, x))
