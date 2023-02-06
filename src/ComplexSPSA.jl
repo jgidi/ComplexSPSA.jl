@@ -6,8 +6,6 @@ using LinearAlgebra, Statistics
 # # Exported
 # # Qiskit wrapper submodule
 # export Qiskit
-# export PaperPlot
-
 # Optimzer exports
 
 # First order
